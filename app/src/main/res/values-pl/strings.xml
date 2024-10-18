@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChooseYourOutfit</string>
+    <string name="chooseoutfit">Wybierz ubranie</string>
+    <string name="addoutfit">Dodaj ubranie</string>
+    <string name="title_activity_add_clothes">AddClothesActivity</string>
+    <string name="title_activity_choose_outfit">ChooseOutfitActivity</string>
+    <string name="title_activity_camera_xactivity">CameraXActivity</string>
+    <string name="add_trousers">Dodaj spodnie</string>
+    <string name="add_shirt">Dodaj koszulke</string>
+</resources>

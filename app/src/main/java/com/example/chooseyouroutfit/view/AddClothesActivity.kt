@@ -33,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chooseyouroutfit.R
-import com.example.chooseyouroutfit.model.TypeClothe
 import com.example.chooseyouroutfit.ui.theme.ChooseYourOutfitTheme
 
 class AddClothesActivity : ComponentActivity() {
@@ -45,8 +44,9 @@ class AddClothesActivity : ComponentActivity() {
             }
         }
     }
+
     @Composable
-    fun BackgroundView(){
+    fun BackgroundView() {
         val context = LocalContext.current
         val intentCameraXActivity = Intent(context, CameraActivity::class.java)
         Image(
@@ -55,13 +55,15 @@ class AddClothesActivity : ComponentActivity() {
             modifier = Modifier.fillMaxSize(),
             contentDescription = "Tło dodawania zdjec"
         )
-        Column(modifier = Modifier.fillMaxSize(),
-            verticalArrangement =Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
             Button(
                 onClick = {
-                    intentCameraXActivity.putExtra("location",TypeClothe.SHIRT.typeClothe)
+                    intentCameraXActivity.putExtra("location", "TEST")
                     startActivity(intentCameraXActivity)
 
                 },
@@ -69,16 +71,18 @@ class AddClothesActivity : ComponentActivity() {
                 border = BorderStroke(1.dp, Color.Black)
 
             ) {
-                Text(text = stringResource(R.string.add_shirt),
+                Text(
+                    text = stringResource(R.string.add_shirt),
                     fontSize = 25.sp,
-                    color = Color.DarkGray)
+                    color = Color.DarkGray
+                )
             }
 
             Spacer(modifier = Modifier.height(40.dp))
 
             Button(
                 onClick = {
-                    intentCameraXActivity.putExtra("location",TypeClothe.TROUSERS.typeClothe)
+                    intentCameraXActivity.putExtra("location", "TEST")
                     startActivity(intentCameraXActivity)
 
 
@@ -86,9 +90,11 @@ class AddClothesActivity : ComponentActivity() {
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 border = BorderStroke(1.dp, Color.Black)
             ) {
-                Text(text = stringResource(R.string.add_trousers),
+                Text(
+                    text = stringResource(R.string.add_trousers),
                     fontSize = 25.sp,
-                    color = Color.DarkGray)
+                    color = Color.DarkGray
+                )
             }
         }
         ReturnToMain()
@@ -105,8 +111,9 @@ class AddClothesActivity : ComponentActivity() {
                 .clickable {
                     startActivity(intent)
                     finish()
-                },
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent, contentColor = Color.White)
+                }, colors = CardDefaults.cardColors(
+                containerColor = Color.Transparent, contentColor = Color.White
+            )
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,

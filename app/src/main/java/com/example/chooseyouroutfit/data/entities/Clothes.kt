@@ -3,7 +3,6 @@ package com.example.chooseyouroutfit.data.entities
 import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(tableName = "clothes")
 data class Clothes(
@@ -16,6 +15,5 @@ data class Clothes(
     val season: String,
     val material: String,
     val imageId: Long, //FK
-    val uri : Uri,
-    val dateAdded: Date
+    val uri: Uri
 )

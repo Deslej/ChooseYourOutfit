@@ -9,6 +9,5 @@ data class Outfit(
 
     @PrimaryKey(autoGenerate = true)
     val outfitId: Long = 0,
-    val name: String,
-    val dateCreated: Date
+    val name: String
 )

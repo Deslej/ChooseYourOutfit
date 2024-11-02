@@ -9,17 +9,23 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.ComponentActivity
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -28,7 +34,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -37,11 +47,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
-import com.example.chooseyouroutfit.database.ImageObjectDatabaseRepository
-import com.example.chooseyouroutfit.model.ImageObject
-import com.example.chooseyouroutfit.model.TypeClothe
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import com.example.chooseyouroutfit.data.entities.Image
+import com.example.chooseyouroutfit.data.repository.ImageRepository
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.text.SimpleDateFormat
@@ -55,7 +62,7 @@ class CameraActivity : ComponentActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var previewView: androidx.camera.view.PreviewView
     private lateinit var location: String
-    private val IODR by inject<ImageObjectDatabaseRepository>()
+    private val IODR by inject<ImageRepository>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,9 +102,11 @@ class CameraActivity : ComponentActivity() {
 
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(contentResolver,
+            .Builder(
+                contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues)
+                contentValues
+            )
             .build()
 
         // Set up image capture listener, which is triggered after photo has been taken
@@ -109,7 +118,7 @@ class CameraActivity : ComponentActivity() {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                 }
 
-                override fun onImageSaved(output: ImageCapture.OutputFileResults){
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
@@ -125,12 +134,11 @@ class CameraActivity : ComponentActivity() {
         finish()
     }
 
-    private fun saveImageToDb(uri : Uri, typeClothe:String){
-        val imageObject = ImageObject(
-            Uri = uri,
-            TypeClothe = typeClothe
+    private fun saveImageToDb(uri: Uri, typeClothe: String) {
+        val imageObject = Image(
+            uri = uri
         )
-        lifecycleScope.launch { IODR.insertImageObject(imageObject) }
+        lifecycleScope.launch { IODR.insert(imageObject) }
     }
 
     private fun startCamera() {
@@ -201,7 +209,7 @@ class CameraActivity : ComponentActivity() {
                 startActivity(intent)
                 finish()
                 Toast.makeText(baseContext, "Permission request denied", Toast.LENGTH_SHORT).show()
-            }else{
+            } else {
                 startCamera()
             }
         }
@@ -233,22 +241,26 @@ class CameraActivity : ComponentActivity() {
                 .padding(bottom = 30.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
                 Button(
                     onClick = { takePhoto() },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 8.dp),
-                    border = BorderStroke(4.dp,Color.Black),
+                    border = BorderStroke(4.dp, Color.Black),
                     modifier = Modifier
                         .padding(end = 10.dp)
                         .size(60.dp)
-                    ) {
+                ) {
                 }
             }
         }
         ReturnToMain()
     }
+
     @Composable
     fun ReturnToMain() {
         val context = LocalContext.current
@@ -261,13 +273,18 @@ class CameraActivity : ComponentActivity() {
                     startActivity(intent)
                     finish()
                 },
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent, contentColor = Color.White),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.White
+            ),
             shape = CircleShape,
-            border = BorderStroke(2.dp,Color.Black)
+            border = BorderStroke(2.dp, Color.Black)
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                modifier = Modifier.size(35.dp).padding(5.dp),
+                modifier = Modifier
+                    .size(35.dp)
+                    .padding(5.dp),
                 contentDescription = "Strzałka powrotu",
                 tint = Color.White
             )

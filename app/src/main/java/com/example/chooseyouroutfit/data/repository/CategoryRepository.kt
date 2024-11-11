@@ -11,4 +11,7 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
     suspend fun getAllCategories(): List<Category> {
         return categoryDao.getAllCategories()
     }
+    suspend fun getCategoryById(id: Long): Category{
+        return categoryDao.getCategoryById(id)
+    }
 }

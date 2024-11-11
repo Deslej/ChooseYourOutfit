@@ -2,6 +2,7 @@ package com.example.chooseyouroutfit.view
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -47,9 +48,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
-import com.example.chooseyouroutfit.data.entities.Image
-import com.example.chooseyouroutfit.data.repository.ImageRepository
+import com.example.chooseyouroutfit.data.entities.Clothes
+import com.example.chooseyouroutfit.data.repository.ClothesRepository
+import com.example.chooseyouroutfit.model.ClothesHolder
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -61,32 +65,29 @@ class CameraActivity : ComponentActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var previewView: androidx.camera.view.PreviewView
-    private lateinit var location: String
-    private val IODR by inject<ImageRepository>()
+    private lateinit var clothesHolder: ClothesHolder
+    private val CODR by inject<ClothesRepository>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            location = intent?.getStringExtra("location") ?: ""
-            if (location.isNotEmpty()) {
-                CameraApp { previewView ->
-                    this.previewView = previewView
-                    if (allPermissionsGranted()) {
-                        startCamera()
-                    } else {
-                        requestPermissions()
-                    }
+            clothesHolder = intent?.getSerializableExtra("objectClothes") as ClothesHolder
+
+            CameraApp { previewView ->
+                this.previewView = previewView
+                if (allPermissionsGranted()) {
+                    startCamera()
+                } else {
+                    requestPermissions()
                 }
-            } else {
-                Log.e(TAG, "No location provided in Intent.")
-                Toast.makeText(this, "Error: No location provided", Toast.LENGTH_SHORT).show()
             }
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    private fun takePhoto() {
+    private fun takePhoto(context: Context) {
+        val intentAddClothesActivity = Intent(context, AddClothesActivity::class.java)
         val imageCapture = imageCapture ?: return
 
         // Create a timestamped name and MediaStore entry.
@@ -95,9 +96,9 @@ class CameraActivity : ComponentActivity() {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-//                put(MediaStore.Images.Media.RELATIVE_PATH, location)
-//            }
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+            }
         }
 
         // Create output options object which contains file + metadata
@@ -110,6 +111,7 @@ class CameraActivity : ComponentActivity() {
             .build()
 
         // Set up image capture listener, which is triggered after photo has been taken
+
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(this),
@@ -122,23 +124,31 @@ class CameraActivity : ComponentActivity() {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
-                    output.savedUri?.let { uri ->
-                        saveImageToDb(uri, location)
-                    } ?: run {
-                        Log.e(TAG, "Saved URI is null, cannot save to DB.")
+                    lifecycleScope.launch {
+                        withContext(NonCancellable) {
+                        output.savedUri?.let { uri ->
+                            CODR.insert(getObject(uri, clothesHolder))
+                        } ?: run {
+                            Log.e(TAG, "Saved URI is null, cannot save to DB.")
+                        }
                     }
+                    }
+                    startActivity(intentAddClothesActivity)
                 }
-
             }
         )
-        finish()
     }
 
-    private fun saveImageToDb(uri: Uri, typeClothe: String) {
-        val imageObject = Image(
+    private fun getObject(uri: Uri, clothesHolder: ClothesHolder):Clothes {
+        val clothesObject = Clothes(
+            name = clothesHolder.name,
+            categoryId = clothesHolder.categoryId,
+            color = clothesHolder.color,
+            season = clothesHolder.season,
+            material = clothesHolder.material,
             uri = uri
         )
-        lifecycleScope.launch { IODR.insert(imageObject) }
+        return clothesObject
     }
 
     private fun startCamera() {
@@ -164,7 +174,6 @@ class CameraActivity : ComponentActivity() {
                 cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture
                 )
-
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
@@ -246,7 +255,7 @@ class CameraActivity : ComponentActivity() {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { takePhoto() },
+                    onClick = { takePhoto(context = this@CameraActivity) },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 8.dp),

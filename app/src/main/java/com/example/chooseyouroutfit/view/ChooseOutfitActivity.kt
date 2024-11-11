@@ -37,8 +37,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
-import com.example.chooseyouroutfit.data.entities.Image
-import com.example.chooseyouroutfit.data.repository.ImageRepository
+import com.example.chooseyouroutfit.data.entities.Category
+import com.example.chooseyouroutfit.data.repository.CategoryRepository
+import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.ui.theme.ChooseYourOutfitTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,11 +50,21 @@ class ChooseOutfitActivity : ComponentActivity() {
     private var imageTrousersUris = mutableStateListOf<Uri>()
     private var currentImageShirt = mutableStateOf<Uri?>(null)
     private var currentImageTrousers = mutableStateOf<Uri?>(null)
-    private val IODR by inject<ImageRepository>()
-    var im = mutableListOf<Image>()
+    private val CODR by inject<ClothesRepository>()
+    private val CAODR by inject<CategoryRepository>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val categoryObject = Category(
+            name = "Trousers"
+        )
+        val categoryObject2 = Category(
+            name = "Shirt"
+        )
+        lifecycleScope.launch {
+            CAODR.insert(categoryObject)
+            CAODR.insert(categoryObject2)
+             }//TODO: usunac jak bedzie w bazie odrazu generowane(od categoryobject z lifecyclescope)
         super.onCreate(savedInstanceState)
         loadImagesFromDatabase()
         setContent {
@@ -89,54 +100,17 @@ class ChooseOutfitActivity : ComponentActivity() {
 
     private fun loadImagesFromDatabase() {
         lifecycleScope.launch(Dispatchers.IO) {
-            // Fetch images from the database
-            im = IODR.getAllImages().toMutableList()
+            val clothes = CODR.getAllClothes()
 
-            // Here you would fill in the URIs for shirts and trousers
-            // Assuming `im` contains objects with the URI for the shirt and trousers
-            imageShirtUris.clear()
-            imageTrousersUris.clear()
-
-//            im.forEach { imageObject ->
-//                // TODO: to fix after new db setup
-//                // Assuming `imageObject` has a field `TypeClothe` to distinguish between shirts and trousers
-//                imageObject.uri?.let { uri -> // Use let to safely unwrap the nullable Uri
-//                    if (imageObject.TypeClothe == TypeClothe.SHIRT.typeClothe) {
-//                        imageShirtUris.add(uri) // Only add if uri is not null
-//                    } else {
-//                        imageTrousersUris.add(uri) // Only add if uri is not null
-//                    }
-//                }
-//            }
+            clothes.forEach{ clothesObject ->
+                val category = CAODR.getCategoryById(clothesObject.categoryId)
+                if (category.name == "Shirt"){
+                    imageShirtUris.add(clothesObject.uri)
+                }else if(category.name == "Trousers"){
+                    imageTrousersUris.add(clothesObject.uri)
+                }
+            }
         }
-    }
-
-    private fun getImages(location: String, mutableList: MutableList<Uri>) {
-        lifecycleScope.launch(Dispatchers.IO) {
-//            val path = location
-//
-//            val selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " like ? "
-//            val selectionArgs = arrayOf("%$path%")
-//
-//            val externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-//            val projection = arrayOf(
-//                MediaStore.Files.FileColumns._ID,
-//                MediaStore.Images.Media.DATE_TAKEN,
-//                MediaStore.MediaColumns.TITLE,
-//                MediaStore.Images.Media.MIME_TYPE,
-//                MediaStore.MediaColumns.RELATIVE_PATH
-//            )
-//            val cursor = contentResolver.query(externalUri, projection, selection, selectionArgs, MediaStore.Images.Media.DATE_TAKEN)
-//
-//            cursor?.use {
-//                val idColumn = it.getColumnIndex(MediaStore.MediaColumns._ID)
-//                while (it.moveToNext()) {
-//                    val photoUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, it.getString(idColumn))
-//                    mutableList.add(photoUri)
-//                }
-//            }
-        }
-
     }
 
     @Composable

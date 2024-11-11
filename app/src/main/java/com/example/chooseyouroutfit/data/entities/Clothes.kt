@@ -14,6 +14,5 @@ data class Clothes(
     val color: String,
     val season: String,
     val material: String,
-    val imageId: Long, //FK
     val uri: Uri
 )

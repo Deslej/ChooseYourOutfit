@@ -5,6 +5,11 @@
     <string name="title_activity_add_clothes">AddClothesActivity</string>
     <string name="title_activity_choose_outfit">ChooseOutfitActivity</string>
     <string name="title_activity_camera_xactivity">CameraXActivity</string>
-    <string name="add_trousers">Add Trousers</string>
-    <string name="add_shirt">Add Shirt</string>
+    <string name="photo">Take a photo</string>
+    <string name="trousers">Trousers</string>
+    <string name="shirt">Shirt</string>
+    <string name="name">Name</string>
+    <string name="color">Color</string>
+    <string name="season">Season</string>
+    <string name="material">Material</string>
 </resources>

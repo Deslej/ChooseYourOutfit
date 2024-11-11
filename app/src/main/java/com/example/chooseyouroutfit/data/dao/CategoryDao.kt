@@ -14,5 +14,8 @@ interface CategoryDao {
     @Query("SELECT * FROM categories")
     suspend fun getAllCategories(): List<Category>
 
+    @Query("SELECT * FROM categories WHERE categoryId = :id")
+    suspend fun getCategoryById(id: Long): Category
+
     // TODO: List of categories will be loaded to database at the beginning
 }

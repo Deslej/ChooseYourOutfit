@@ -1,5 +1,6 @@
 package com.example.chooseyouroutfit.view
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -29,6 +30,9 @@ import androidx.compose.ui.unit.sp
 import com.example.chooseyouroutfit.R
 import com.example.chooseyouroutfit.ui.theme.BodyColor
 import com.example.chooseyouroutfit.ui.theme.ChooseYourOutfitTheme
+import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.imagesegmenter.ImageSegmenter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,5 +97,6 @@ class MainActivity : ComponentActivity() {
         Configuration.ORIENTATION_PORTRAIT -> painterResource(R.drawable.mainbackgroundportrait)
         else -> painterResource(R.drawable.mainbackgroundportrait)
     }
+
 
 }

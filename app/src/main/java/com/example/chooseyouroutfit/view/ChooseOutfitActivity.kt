@@ -248,26 +248,40 @@ class ChooseOutfitActivity : ComponentActivity() {
 
 
     private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
-        val byteBuffer = ByteBuffer.allocateDirect(640 * 640 * 3 * 4)
-        byteBuffer.order(ByteOrder.nativeOrder())
-        val pixels = IntArray(640 * 640)
-        bitmap.getPixels(pixels, 0, 640, 0, 0, 640, 640)  // Pobieramy piksele obrazu
+        val byteBuffer = ByteBuffer.allocateDirect(640 * 640 * 3 * 4) // Bufor dla 3 kanałów RGB
+        byteBuffer.order(ByteOrder.nativeOrder()) // Ustalamy kolejność bajtów
 
-        // Iteracja po pikselach i konwersja do wartości RGB
+        val pixels = IntArray(640 * 640)  // Tablica do przechowywania pikseli obrazu
+
+        // Pobranie wszystkich pikseli z obrazu
+        bitmap.getPixels(pixels, 0, 640, 0, 0, 640, 640)
+
+        // Przetwarzanie pikseli na wartości RGB
         for (pixel in pixels) {
-            val r = ((pixel shr 16) and 0xFF) / 255.0f  // Rozdzielanie czerwonego kanału
-            val g = ((pixel shr 8) and 0xFF) / 255.0f   // Rozdzielanie zielonego kanału
-            val b = (pixel and 0xFF) / 255.0f           // Rozdzielanie niebieskiego kanału
+            // Odczytujemy wartości RGB (przy założeniu, że obraz jest w formacie ARGB)
+            val r = ((pixel shr 16) and 0xFF) / 255.0f  // Czerwony
+            val g = ((pixel shr 8) and 0xFF) / 255.0f   // Zielony
+            val b = (pixel and 0xFF) / 255.0f           // Niebieski
 
-            // Dodajemy te wartości do bufora jako dane float
+            // Dodajemy dane do bufora
             byteBuffer.putFloat(r)
             byteBuffer.putFloat(g)
             byteBuffer.putFloat(b)
         }
+        // Debugowanie RGB
+        for (i in 0 until 10) { // Pokażmy wartości dla pierwszych 10 pikseli
+            val pixel = pixels[i]
+            val r = ((pixel shr 16) and 0xFF)
+            val g = ((pixel shr 8) and 0xFF)
+            val b = (pixel and 0xFF)
+            Log.d("RGB Values", "Pixel $i -> R: $r, G: $g, B: $b")
+        }
 
-        byteBuffer.rewind()  // Przywracamy wskaźnik bufora na początek
+
+        byteBuffer.rewind() // Resetujemy wskaźnik w buforze na początek
         return byteBuffer
     }
+
 
 
 

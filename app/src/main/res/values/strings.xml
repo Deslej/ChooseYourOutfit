@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">ChooseYourOutfit</string>
-    <string name="chooseoutfit">Choose Outfit</string>
-    <string name="addoutfit">Add clothes</string>
+    <string name="chooseOutfit" translatable="false">Create Outfit</string>
+    <string name="addItem" translatable="false">Add Item</string>
+    <string name="seeWardrobe" translatable="false">Wardrobe</string>
+    <string name="seeOutfits" translatable="false">Outfits</string>
     <string name="title_activity_add_clothes">AddClothesActivity</string>
     <string name="title_activity_choose_outfit">ChooseOutfitActivity</string>
     <string name="title_activity_camera_xactivity">CameraXActivity</string>
+    <string name="title_activity_see_outfits">OutfitsActivity</string>
+    <string name="title_activity_see_wardrobe">WardrobeActivity</string>
     <string name="photo">Take a photo</string>
     <string name="trousers">Trousers</string>
     <string name="shirt">Shirt</string>

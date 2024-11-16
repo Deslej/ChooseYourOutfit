@@ -37,9 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
-import com.example.chooseyouroutfit.data.entities.Category
-import com.example.chooseyouroutfit.data.repository.CategoryRepository
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
+import com.example.chooseyouroutfit.model.ClothesCategoryType
 import com.example.chooseyouroutfit.ui.theme.ChooseYourOutfitTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,20 +50,8 @@ class ChooseOutfitActivity : ComponentActivity() {
     private var currentImageShirt = mutableStateOf<Uri?>(null)
     private var currentImageTrousers = mutableStateOf<Uri?>(null)
     private val CODR by inject<ClothesRepository>()
-    private val CAODR by inject<CategoryRepository>()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val categoryObject = Category(
-            name = "Trousers"
-        )
-        val categoryObject2 = Category(
-            name = "Shirt"
-        )
-        lifecycleScope.launch {
-            CAODR.insert(categoryObject)
-            CAODR.insert(categoryObject2)
-             }//TODO: usunac jak bedzie w bazie odrazu generowane(od categoryobject z lifecyclescope)
         super.onCreate(savedInstanceState)
         loadImagesFromDatabase()
         setContent {
@@ -103,11 +90,13 @@ class ChooseOutfitActivity : ComponentActivity() {
             val clothes = CODR.getAllClothes()
 
             clothes.forEach{ clothesObject ->
-                val category = CAODR.getCategoryById(clothesObject.categoryId)
-                if (category.name == "Shirt"){
-                    imageShirtUris.add(clothesObject.uri)
-                }else if(category.name == "Trousers"){
-                    imageTrousersUris.add(clothesObject.uri)
+                val category = clothesObject.category
+                when (category) {
+                    ClothesCategoryType.SHIRT.toString() -> imageShirtUris.add(clothesObject.uri)
+                    // TODO - inne przypadki?
+                    else -> {
+                        // TODO - default zachowanie
+                    }
                 }
             }
         }
@@ -181,12 +170,9 @@ class ChooseOutfitActivity : ComponentActivity() {
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                modifier = Modifier.size(35.dp),
-                contentDescription = "Strzałka powrotu"
+                modifier = Modifier.size(40.dp),
+                contentDescription = "Return Arrow"
             )
         }
     }
 }
-
-
-

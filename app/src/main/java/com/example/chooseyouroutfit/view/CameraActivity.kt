@@ -142,7 +142,7 @@ class CameraActivity : ComponentActivity() {
     private fun getObject(uri: Uri, clothesHolder: ClothesHolder):Clothes {
         val clothesObject = Clothes(
             name = clothesHolder.name,
-            categoryId = clothesHolder.categoryId,
+            category = clothesHolder.category,
             color = clothesHolder.color,
             season = clothesHolder.season,
             material = clothesHolder.material,

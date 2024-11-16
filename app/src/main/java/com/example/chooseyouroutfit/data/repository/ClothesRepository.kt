@@ -12,7 +12,17 @@ class ClothesRepository(private val clothesDao: ClothesDao) {
         return clothesDao.getAllClothes()
     }
 
-    suspend fun getClothesById(id: Long): Clothes? {
-        return clothesDao.getClothesById(id)
+    suspend fun getFilteredClothes(
+        color: String = "%",
+        material: String = "%",
+        season: String = "%",
+        category: String = "%"
+    ): List<Clothes> {
+        return clothesDao.getFilteredClothes(
+            color = color,
+            material = material,
+            season = season,
+            category = category
+        )
     }
 }

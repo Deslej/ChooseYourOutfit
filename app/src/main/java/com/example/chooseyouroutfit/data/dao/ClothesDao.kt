@@ -14,8 +14,11 @@ interface ClothesDao {
     @Query("SELECT * FROM clothes")
     suspend fun getAllClothes(): List<Clothes>
 
-    @Query("SELECT * FROM clothes WHERE clothesId = :id")
-    suspend fun getClothesById(id: Long): Clothes?
-
-    // TODO - implement the rest of functions to filter clothes
+    @Query("SELECT * FROM clothes WHERE color LIKE :color AND material LIKE :material AND season LIKE :season AND category LIKE :category")
+    suspend fun getFilteredClothes(
+        color: String = "%",
+        material: String = "%",
+        season: String = "%",
+        category: String = "%"
+    ): List<Clothes>
 }

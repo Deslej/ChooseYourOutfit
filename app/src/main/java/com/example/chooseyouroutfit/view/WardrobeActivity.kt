@@ -1,79 +1,125 @@
 package com.example.chooseyouroutfit.view
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.chooseyouroutfit.R
+import coil.compose.rememberImagePainter
+import com.example.chooseyouroutfit.data.entities.Clothes
+import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.model.ClothesCategoryType
-import com.example.chooseyouroutfit.model.ClothesHolder
 import com.example.chooseyouroutfit.model.SeasonType
 import com.example.chooseyouroutfit.ui.components.ReusableBackgroundWardrobe
 import com.example.chooseyouroutfit.ui.components.ReusableDropdownMenu
 import com.example.chooseyouroutfit.ui.components.ReusableTextField
 import com.example.chooseyouroutfit.ui.theme.ChooseYourOutfitTheme
+import org.koin.android.ext.android.inject
 
-class AddClothesActivity : ComponentActivity() {
+class WardrobeActivity : ComponentActivity() {
+
+    private val CODR by inject<ClothesRepository>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ChooseYourOutfitTheme {
-                BackgroundView()
+                MainWardrobeView()
             }
         }
     }
 
     @Composable
-    fun BackgroundView() {
+    fun MainWardrobeView() {
         ReusableBackgroundWardrobe()
-        AddItemForm()
+        FilterForm()
         ReturnToMain()
     }
 
-    // TODO - maybe would be better to name filed as selectedName, selectedColor etc ...
     @Composable
-    fun AddItemForm() {
-        var clothesHolder by remember { mutableStateOf<ClothesHolder?>(null) }
-        val context = LocalContext.current
-        val intentCameraXActivity = Intent(context, CameraActivity::class.java)
+    fun ImageGrid(clothes: List<Clothes>, columns: Int = 4) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(clothes.size) { index ->
+                ImageCard(imageUri = clothes[index].uri)
+            }
+        }
+    }
 
-        var name by rememberSaveable { mutableStateOf("") }
-        var color by rememberSaveable { mutableStateOf("") }
-        var material by rememberSaveable { mutableStateOf("") }
-        var season by rememberSaveable { mutableStateOf("") }
-        var category by rememberSaveable { mutableStateOf("") }
-        // val uri: Uri (?)
+    @Composable
+    fun ImageCard(imageUri: Uri) {
+        Card(
+            modifier = Modifier
+                .size(100.dp)
+                .padding(8.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+        ) {
+            Image(
+                painter = rememberImagePainter(imageUri),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+
+    @Composable
+    fun FilterForm() {
+        var selectedMaterial by remember { mutableStateOf("") }
+        var selectedColor by remember { mutableStateOf("") }
+        var selectedSeason by remember { mutableStateOf("") }
+        var selectedCategory by remember { mutableStateOf("") }
+
+        var filteredClothes by remember { mutableStateOf<List<Clothes>>(emptyList()) }
+
+        suspend fun loadFilteredClothes() {
+            filteredClothes = CODR.getFilteredClothes(
+                color = if (selectedColor.isNotEmpty()) "%${selectedColor.trim()}%" else "%",
+                material = if (selectedMaterial.isNotEmpty()) "%${selectedMaterial.trim()}%" else "%",
+                season = if (selectedSeason.isNotEmpty()) "%${selectedSeason.trim()}%" else "%",
+                category = if (selectedCategory.isNotEmpty()) "%${selectedCategory.trim()}%" else "%",
+            )
+        }
+
+        LaunchedEffect(selectedMaterial, selectedColor, selectedSeason, selectedCategory) {
+            loadFilteredClothes()
+        }
 
         Column(
             modifier = Modifier
@@ -82,72 +128,24 @@ class AddClothesActivity : ComponentActivity() {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ReusableTextField(
-                value = name, onValueChange = { name = it }, placeholder = "Name"
+                value = selectedColor,
+                onValueChange = { selectedColor = it },
+                placeholder = "Select Color"
             )
             ReusableTextField(
-                value = color, onValueChange = { color = it }, placeholder = "Color"
+                value = selectedMaterial,
+                onValueChange = { selectedMaterial = it },
+                placeholder = "Select Material"
             )
-            ReusableTextField(
-                value = material, onValueChange = { material = it }, placeholder = "Material"
-            )
-            CategoryDropDownMenu(categorySelection = { selectedCategory ->
-                category = selectedCategory
+            CategoryDropDownMenu(categorySelection = { category ->
+                selectedCategory = category
             })
-            SeasonDropdownMenu(seasonSelection = { selectedSeason ->
-                season = selectedSeason
+            SeasonDropdownMenu(seasonSelection = { season ->
+                selectedSeason = season
             })
-
-            clothesHolder = ClothesHolder(
-                name = name,
-                color = color,
-                season = season,
-                material = material,
-                category = category
-            )
-
-            Button(
-                onClick = {
-                    intentCameraXActivity.putExtra("objectClothes", clothesHolder)
-                    startActivity(intentCameraXActivity)
-                    finish()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                border = BorderStroke(1.dp, Color.Black),
-                enabled = isFormValid(name, color, material, season, category)
-            ) {
-                Text(
-                    text = stringResource(R.string.photo), fontSize = 25.sp, color = Color.DarkGray
-                )
-            }
-
-            // TODO - pytanie gdzie dodamy ubranie
-            Button(
-                onClick = {
-                    //    addItemToDatabase(clothesHolder)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                border = BorderStroke(1.dp, Color.Black),
-                enabled = isFormValid(name, color, material, season, category)
-            ) {
-                Text(
-                    text = stringResource(R.string.addItem),
-                    fontSize = 25.sp,
-                    color = Color.DarkGray
-                )
-            }
+            // TODO - tutaj cos sie wywala
+//            ImageGrid(clothes = filteredClothes)
         }
-    }
-
-    private fun isFormValid(
-        name: String,
-        color: String,
-        material: String,
-        season: String,
-        category: String
-    ): Boolean {
-        return name.isNotEmpty() && color.isNotEmpty() && material.isNotEmpty() && season.isNotEmpty() && category.isNotEmpty()
     }
 
     @Composable
@@ -162,7 +160,6 @@ class AddClothesActivity : ComponentActivity() {
             onOptionSelected = { seasonName ->
                 seasonSelection(seasonName)
                 selectedSeason = seasonName
-
             }
         )
     }
@@ -173,7 +170,7 @@ class AddClothesActivity : ComponentActivity() {
         var selectedCategory by remember { mutableStateOf(options[0]) }
 
         ReusableDropdownMenu(
-            label = "Select Category",
+            label = "Select Season",
             options = options,
             selectedOption = selectedCategory,
             onOptionSelected = { categoryName ->
@@ -206,12 +203,9 @@ class AddClothesActivity : ComponentActivity() {
         }
     }
 
-    // TODO - metoda do dodawania do bazy? Teraz jest w CameraActivity
-    // addItem
-
     @Preview(showBackground = true)
     @Composable
     fun PreviewMainBackground() {
-        BackgroundView()
+        MainWardrobeView()
     }
 }

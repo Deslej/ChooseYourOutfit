@@ -6,6 +6,8 @@
     <string name="title_activity_add_clothes">AddClothesActivity</string>
     <string name="title_activity_choose_outfit">ChooseOutfitActivity</string>
     <string name="title_activity_camera_xactivity">CameraXActivity</string>
+    <string name="title_activity_see_outfits">OutfitsActivity</string>
+    <string name="title_activity_see_wardrobe">WardrobeActivity</string>
     <string name="photo">Zrób zdjęcie</string>
     <string name="trousers">Spodnie</string>
     <string name="shirt">Koszulka</string>

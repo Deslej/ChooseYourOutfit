@@ -103,10 +103,8 @@ class AddClothesActivity : ComponentActivity() {
             ReusableActionButton(
                 text = stringResource(R.string.photo),
                 onClick = {
-                    val intentCameraXActivity = Intent(context, CameraActivity::class.java).apply {
-                        putExtra("objectClothes", clothesHolder)
-                    }
-                    context.startActivity(intentCameraXActivity)
+                    intentCameraXActivity.putExtra("objectClothes", clothesHolder)
+                    startActivity(intentCameraXActivity)
                 },
                 isEnabled = isFormValid(name, color, material, season, category)
 

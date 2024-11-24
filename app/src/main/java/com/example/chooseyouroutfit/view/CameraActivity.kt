@@ -48,6 +48,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
+import com.chaquo.python.Python
 import com.example.chooseyouroutfit.data.entities.Clothes
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.model.ClothesHolder
@@ -55,6 +56,8 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService
@@ -127,6 +130,7 @@ class CameraActivity : ComponentActivity() {
                     lifecycleScope.launch {
                         withContext(NonCancellable) {
                         output.savedUri?.let { uri ->
+                            modelUse(context,uri)
                             CODR.insert(getObject(uri, clothesHolder))
                         } ?: run {
                             Log.e(TAG, "Saved URI is null, cannot save to DB.")
@@ -137,6 +141,38 @@ class CameraActivity : ComponentActivity() {
                 }
             }
         )
+    }
+    fun modelUse(context: Context,uri: Uri){
+        val modelPath = copyAssetToInternalStorage("last_float32.tflite", this)
+        val py = Python.getInstance()
+        val segmenter = py.getModule("model")
+        val realPath = getRealPathFromURI(uri, context)
+        segmenter.callAttr("cut_clothe_from_image", realPath, modelPath)
+    }
+
+    fun copyAssetToInternalStorage(assetFileName: String, context: Context): String {
+        val file = File(context.filesDir, assetFileName)
+        if (!file.exists()) {
+            context.assets.open(assetFileName).use { inputStream ->
+                FileOutputStream(file).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        }
+        return file.absolutePath
+    }
+
+    fun getRealPathFromURI(contentUri: Uri, context: Context): String? {
+        val cursor = context.contentResolver.query(contentUri, null, null, null, null)
+        return if (cursor != null) {
+            cursor.moveToFirst()
+            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+            val path = if (idx != -1) cursor.getString(idx) else null
+            cursor.close()
+            path
+        } else {
+            null
+        }
     }
 
     private fun getObject(uri: Uri, clothesHolder: ClothesHolder):Clothes {

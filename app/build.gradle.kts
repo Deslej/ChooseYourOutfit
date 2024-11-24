@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
+    id("com.chaquo.python")
 }
 
 android {
@@ -18,6 +19,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
         }
     }
 
@@ -50,7 +54,18 @@ android {
         }
     }
 }
-
+chaquopy {
+    defaultConfig {
+        version = "3.8"
+        buildPython("C:/Users/Mikołaj/AppData/Local/Programs/Python/Python38/python.exe")//Jesli ktos pobierze to dopasuj sciezke do swojego pythona3.8
+        buildPython("C:/Windows/py.exe", "-3.8")
+        pip {
+            install ("numpy")
+            install ("tflite_runtime")
+            install ("Pillow")
+        }
+    }
+}
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

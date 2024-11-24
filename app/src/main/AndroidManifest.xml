@@ -37,6 +37,11 @@
             android:label="@string/title_activity_choose_outfit"
             android:theme="@style/Theme.ChooseYourOutfit" />
         <activity
+            android:name=".view.CameraActivity"
+            android:exported="false"
+            android:label="@string/title_activity_add_clothes"
+            android:theme="@style/Theme.ChooseYourOutfit" />
+        <activity
             android:name=".view.OutfitsActivity"
             android:exported="false"
             android:label="@string/seeOutfits"

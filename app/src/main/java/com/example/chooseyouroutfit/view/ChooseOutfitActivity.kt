@@ -46,7 +46,8 @@ import org.koin.android.ext.android.inject
 
 class ChooseOutfitActivity : ComponentActivity() {
     private var imageShirtUris = mutableStateListOf<Uri>()
-    private var imageTrousersUris = mutableStateListOf<Uri>()
+    private var imagePantsUris = mutableStateListOf<Uri>()
+    private var imageTopUris = mutableStateListOf<Uri>()
     private var currentImageShirt = mutableStateOf<Uri?>(null)
     private var currentImageTrousers = mutableStateOf<Uri?>(null)
     private val CODR by inject<ClothesRepository>()
@@ -77,7 +78,7 @@ class ChooseOutfitActivity : ComponentActivity() {
             Column(Modifier.weight(3.5f)) {
                 ShowImages(imageShirtUris, currentImageShirt)
                 Spacer(Modifier.height(100.dp))
-                ShowImages(imageTrousersUris, currentImageTrousers)
+                ShowImages(imagePantsUris, currentImageTrousers)
 
             }
         }
@@ -92,7 +93,8 @@ class ChooseOutfitActivity : ComponentActivity() {
             clothes.forEach{ clothesObject ->
                 val category = clothesObject.category
                 when (category) {
-                    ClothesCategoryType.SHIRT.toString() -> imageShirtUris.add(clothesObject.uri)
+                    ClothesCategoryType.SHIRT.displayName -> imageShirtUris.add(clothesObject.uri)
+                    ClothesCategoryType.PANTS.displayName -> imagePantsUris.add(clothesObject.uri)
                     // TODO - inne przypadki?
                     else -> {
                         // TODO - default zachowanie

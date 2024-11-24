@@ -67,28 +67,28 @@ class MainActivity : ComponentActivity() {
             CustomButton(
                 text = stringResource(R.string.chooseOutfit),
                 onClick = {
-                    context.startActivity(Intent(context, ChooseOutfitActivity::class.java))
+                    startActivity(Intent(context, ChooseOutfitActivity::class.java))
                 }
             )
 
             CustomButton(
                 text = stringResource(R.string.seeOutfits),
                 onClick = {
-                    context.startActivity(Intent(context, OutfitsActivity::class.java))
+                    startActivity(Intent(context, OutfitsActivity::class.java))
                 }
             )
 
             CustomButton(
                 text = stringResource(R.string.addItem),
                 onClick = {
-                    context.startActivity(Intent(context, AddClothesActivity::class.java))
+                    startActivity(Intent(context, AddClothesActivity::class.java))
                 }
             )
 
             CustomButton(
                 text = stringResource(R.string.seeWardrobe),
                 onClick = {
-                    context.startActivity(Intent(context, WardrobeActivity::class.java))
+                    startActivity(Intent(context, WardrobeActivity::class.java))
                 }
             )
         }

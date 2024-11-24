@@ -13,12 +13,14 @@ class ClothesRepository(private val clothesDao: ClothesDao) {
     }
 
     suspend fun getFilteredClothes(
+        name: String = "%",
         color: String = "%",
         material: String = "%",
         season: String = "%",
         category: String = "%"
     ): List<Clothes> {
         return clothesDao.getFilteredClothes(
+            name = name,
             color = color,
             material = material,
             season = season,

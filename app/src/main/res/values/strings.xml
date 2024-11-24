@@ -10,6 +10,7 @@
     <string name="title_activity_see_outfits">OutfitsActivity</string>
     <string name="title_activity_see_wardrobe">WardrobeActivity</string>
     <string name="photo">Take a photo</string>
+    <string name="search">Search</string>
     <string name="trousers">Trousers</string>
     <string name="shirt">Shirt</string>
     <string name="name">Name</string>

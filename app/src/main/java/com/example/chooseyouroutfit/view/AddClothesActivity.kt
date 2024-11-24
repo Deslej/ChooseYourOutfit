@@ -4,23 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,11 +28,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.chooseyouroutfit.R
 import com.example.chooseyouroutfit.model.ClothesCategoryType
 import com.example.chooseyouroutfit.model.ClothesHolder
 import com.example.chooseyouroutfit.model.SeasonType
+import com.example.chooseyouroutfit.ui.components.ReusableActionButton
 import com.example.chooseyouroutfit.ui.components.ReusableBackgroundWardrobe
 import com.example.chooseyouroutfit.ui.components.ReusableDropdownMenu
 import com.example.chooseyouroutfit.ui.components.ReusableTextField
@@ -79,7 +74,7 @@ class AddClothesActivity : ComponentActivity() {
             modifier = Modifier
                 .padding(top = 70.dp, start = 16.dp, end = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             ReusableTextField(
                 value = name, onValueChange = { name = it }, placeholder = "Name"
@@ -98,45 +93,33 @@ class AddClothesActivity : ComponentActivity() {
             })
 
             clothesHolder = ClothesHolder(
-                name = name,
-                color = color,
+                name = name.uppercase(),
+                color = color.uppercase(),
                 season = season,
-                material = material,
+                material = material.uppercase(),
                 category = category
             )
 
-            Button(
+            ReusableActionButton(
+                text = stringResource(R.string.photo),
                 onClick = {
-                    intentCameraXActivity.putExtra("objectClothes", clothesHolder)
-                    startActivity(intentCameraXActivity)
-                    finish()
+                    val intentCameraXActivity = Intent(context, CameraActivity::class.java).apply {
+                        putExtra("objectClothes", clothesHolder)
+                    }
+                    context.startActivity(intentCameraXActivity)
                 },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                border = BorderStroke(1.dp, Color.Black),
-                enabled = isFormValid(name, color, material, season, category)
-            ) {
-                Text(
-                    text = stringResource(R.string.photo), fontSize = 25.sp, color = Color.DarkGray
-                )
-            }
+                isEnabled = isFormValid(name, color, material, season, category)
 
-            // TODO - pytanie gdzie dodamy ubranie
-            Button(
-                onClick = {
-                    //    addItemToDatabase(clothesHolder)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                border = BorderStroke(1.dp, Color.Black),
-                enabled = isFormValid(name, color, material, season, category)
-            ) {
-                Text(
-                    text = stringResource(R.string.addItem),
-                    fontSize = 25.sp,
-                    color = Color.DarkGray
-                )
-            }
+            )
+
+//            ReusableActionButton(
+//                text = stringResource(R.string.addItem),
+//                onClick = {
+//                    //    addItemToDatabase(clothesHolder)
+//                },
+//                isEnabled = isFormValid(name, color, material, season, category)
+//
+//            )
         }
     }
 
@@ -190,7 +173,7 @@ class AddClothesActivity : ComponentActivity() {
 
         Card(
             modifier = Modifier
-                .padding(10.dp)
+                .padding(13.dp)
                 .clickable {
                     startActivity(intent)
                     finish()

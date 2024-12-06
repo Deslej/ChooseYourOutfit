@@ -17,4 +17,5 @@
     <string name="color">Color</string>
     <string name="season">Season</string>
     <string name="material">Material</string>
+    <string name="waiting_for_cut">Cutting clothe</string>
 </resources>

@@ -13,4 +13,14 @@ class Converters {
     fun toUri(uriString: String?): Uri? {
         return uriString?.let { Uri.parse(it) }
     }
+
+    @TypeConverter
+    fun fromListToString(clothesIds: List<Long>): String {
+        return clothesIds.joinToString(",")
+    }
+
+    @TypeConverter
+    fun fromStringToList(data: String): List<Long> {
+        return data.split(",").map { it.toLong() }
+    }
 }

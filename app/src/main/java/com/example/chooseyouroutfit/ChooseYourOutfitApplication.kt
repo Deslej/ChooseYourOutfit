@@ -5,7 +5,6 @@ import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.chooseyouroutfit.data.database.AppDatabase
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
-import com.example.chooseyouroutfit.data.repository.OutfitItemRepository
 import com.example.chooseyouroutfit.data.repository.OutfitRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -24,9 +23,7 @@ class ChooseYourOutfitApplication: Application() {
                     single { AppDatabase.getDatabase(androidContext()) }
                     single { get<AppDatabase>().clothesDao() }
                     single { get<AppDatabase>().outfitDao() }
-                    single { get<AppDatabase>().outfitItemDao() }
                     factory { ClothesRepository(get()) }
-                    factory { OutfitItemRepository(get()) }
                     factory { OutfitRepository(get()) }
                 }
             )

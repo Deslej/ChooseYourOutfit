@@ -1,11 +1,17 @@
 package com.example.chooseyouroutfit.view
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -32,14 +38,21 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
+import com.example.chooseyouroutfit.R
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.model.ClothesCategoryType
 import com.example.chooseyouroutfit.ui.theme.ChooseYourOutfitTheme
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.PoseLandmark
+import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -51,10 +64,19 @@ class ChooseOutfitActivity : ComponentActivity() {
     private var currentImageShirt = mutableStateOf<Uri?>(null)
     private var currentImageTrousers = mutableStateOf<Uri?>(null)
     private val CODR by inject<ClothesRepository>()
+    private var rightShoulder :PoseLandmark? = null
+    private var leftShoulder :PoseLandmark? = null
+    private var leftHip :PoseLandmark? = null
+    private var rightHip :PoseLandmark? = null
+    var bitmap: Bitmap? = null
+    private lateinit var processedImage: MutableState<Bitmap>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        bitmap = BitmapFactory.decodeResource(resources, R.drawable.manekin)
+        bitmap?.let {processedImage = mutableStateOf(it) }
         super.onCreate(savedInstanceState)
         loadImagesFromDatabase()
+        posedetection()
         setContent {
             ChooseYourOutfitTheme {
                 MainView()
@@ -70,12 +92,16 @@ class ChooseOutfitActivity : ComponentActivity() {
                 .padding(top = 70.dp, end = 10.dp)
         ) {
             Column(Modifier.weight(6.5f)) {
-                PutClothesOnCharacter(currentImageShirt)
-                Spacer(Modifier.height(100.dp))
-                PutClothesOnCharacter(currentImageTrousers)
-
+                Image(
+                    painter = BitmapPainter(processedImage.value.asImageBitmap()),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentScale = ContentScale.Fit
+                )
             }
-            Column(Modifier.weight(3.5f)) {
+            Column(Modifier.weight(3.5f).background(Color.Green)) {
                 ShowImages(imageShirtUris, currentImageShirt)
                 Spacer(Modifier.height(100.dp))
                 ShowImages(imagePantsUris, currentImageTrousers)
@@ -123,9 +149,14 @@ class ChooseOutfitActivity : ComponentActivity() {
             items(Uris) { uri ->
                 IconButton(
                     onClick = {
-                        if (currentImage.value == uri)
+                        if (currentImage.value == uri){
                             currentImage.value = null
-                        else currentImage.value = uri
+                            bitmap?.let {processedImage.value = it }}
+                        else {
+                            currentImage.value = uri
+                            bitmap?.let {processedImage.value = it }
+//                            drawShirtOnMannequin()
+                        }
                     },
                     colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent),
                     modifier = Modifier
@@ -177,4 +208,81 @@ class ChooseOutfitActivity : ComponentActivity() {
             )
         }
     }
+    fun posedetection(){
+        val options = AccuratePoseDetectorOptions.Builder()
+            .setDetectorMode(AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE)
+            .build()
+        val poseDetector = PoseDetection.getClient(options)
+        val image: InputImage
+        try {
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.manekin)
+            image = InputImage.fromBitmap(bitmap, 0)
+
+            poseDetector.process(image).addOnSuccessListener {pose->
+                leftShoulder=pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
+                rightShoulder= pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
+                leftHip= pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
+                rightHip= pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
+            }
+                .addOnFailureListener { e ->
+                    e.printStackTrace()
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+//    Do nakładania ale nie działa
+//    fun drawShirtOnMannequin() {
+//        // Sprawdzenie wymaganych danych
+//        if (currentImageShirt.value == null || leftShoulder == null || rightShoulder == null || leftHip == null || rightHip == null) {
+//            // Jeśli brakuje danych, nic nie rób
+//            return
+//        }
+//
+//        // Wczytanie obrazu koszulki
+//        val shirtBitmap: Bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(currentImageShirt.value!!))
+//
+//        // Pobranie pozycji landmarków
+//        val leftShoulderPos = leftShoulder!!.position
+//        val rightShoulderPos = rightShoulder!!.position
+//        val leftHipPos = leftHip!!.position
+//        val rightHipPos = rightHip!!.position
+//
+//
+//        // Tworzenie nowej bitmapy na podstawie istniejącego obrazu manekina
+//        val mannequinBitmap = processedImage.value.copy(Bitmap.Config.ARGB_8888, true)
+//
+//        // Przygotowanie canvasu do rysowania
+//        val canvas = Canvas(mannequinBitmap)
+//        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+//
+//        // Punkty źródłowe (koszulka)
+//        val srcPoints = floatArrayOf(
+//            leftShoulderPos.x, leftShoulderPos.y,  // Górny lewy róg
+//            rightShoulderPos.x, rightShoulderPos.y,  // Górny prawy róg
+//            leftHipPos.x, leftHipPos.y,  // Dolny lewy róg
+//            rightHipPos.x, rightHipPos.y  // Dolny prawy róg
+//        )
+//
+//        // Punkty docelowe na manekinie (dopasowanie do pozycji)
+//        val destPoints = floatArrayOf(
+//            leftShoulderPos.x-225 , leftShoulderPos.y-30,  // Górny lewy róg
+//            rightShoulderPos.x-225 , rightShoulderPos.y-30,  // Górny prawy róg
+//            leftHipPos.x-225 , leftHipPos.y-30,  // Dolny lewy róg
+//            rightHipPos.x-225 , rightHipPos.y-30  // Dolny prawy róg
+//        )
+//
+//        // Ustawienie macierzy transformacji
+//        val matrix = Matrix()
+//        matrix.setPolyToPoly(srcPoints, 0, destPoints, 0, 4)
+//
+//        // Rysowanie koszulki na manekinie
+//        canvas.drawBitmap(shirtBitmap, matrix, paint)
+//
+//        // Aktualizacja przetworzonego obrazu
+//        processedImage.value = mannequinBitmap
+//    }
+
+
+
 }

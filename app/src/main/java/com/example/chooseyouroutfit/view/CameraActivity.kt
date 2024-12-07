@@ -19,39 +19,56 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
+import coil.compose.rememberAsyncImagePainter
 import com.chaquo.python.Python
+import com.example.chooseyouroutfit.R
 import com.example.chooseyouroutfit.data.entities.Clothes
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.model.ClothesHolder
+import com.example.chooseyouroutfit.ui.theme.DullBrown
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,6 +87,12 @@ class CameraActivity : ComponentActivity() {
     private lateinit var previewView: androidx.camera.view.PreviewView
     private lateinit var clothesHolder: ClothesHolder
     private val CODR by inject<ClothesRepository>()
+    var photoConfirmed by mutableStateOf(false)
+    var photoAccepted by mutableStateOf(false)
+    var lastPhotoUri by mutableStateOf<Uri?>(null)
+    var isProcessing by mutableStateOf(false)
+    var ableButtons by mutableStateOf(true)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,14 +106,24 @@ class CameraActivity : ComponentActivity() {
                 } else {
                     requestPermissions()
                 }
+
             }
+            if (photoConfirmed) {
+                ableButtons=false
+                AcceptPhoto(uri =lastPhotoUri )
+                lastPhotoUri?.let { modelUse(this, it) }
+
+            }
+            if(photoAccepted){
+                addAcceptClothes()
+            }
+
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    private fun takePhoto(context: Context) {
-        val intentAddClothesActivity = Intent(context, AddClothesActivity::class.java)
+    private fun takePhoto() {
         val imageCapture = imageCapture ?: return
 
         // Create a timestamped name and MediaStore entry.
@@ -130,24 +163,29 @@ class CameraActivity : ComponentActivity() {
                     lifecycleScope.launch {
                         withContext(NonCancellable) {
                         output.savedUri?.let { uri ->
-                            modelUse(context,uri)
-                            CODR.insert(getObject(uri, clothesHolder))
+                            lastPhotoUri = uri
+                            photoConfirmed=true
                         } ?: run {
                             Log.e(TAG, "Saved URI is null, cannot save to DB.")
                         }
                     }
                     }
-                    startActivity(intentAddClothesActivity)
                 }
             }
         )
     }
     fun modelUse(context: Context,uri: Uri){
-        val modelPath = copyAssetToInternalStorage("last_float32.tflite", this)
-        val py = Python.getInstance()
-        val segmenter = py.getModule("model")
-        val realPath = getRealPathFromURI(uri, context)
-        segmenter.callAttr("cut_clothe_from_image", realPath, modelPath)
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                isProcessing = true
+                val modelPath = copyAssetToInternalStorage("last_float32.tflite", context)
+                val py = Python.getInstance()
+                val segmenter = py.getModule("model")
+                val realPath = getRealPathFromURI(uri, context)
+                segmenter.callAttr("cut_clothe_from_image", realPath, modelPath)
+                isProcessing = false
+            }
+        }
     }
 
     fun copyAssetToInternalStorage(assetFileName: String, context: Context): String {
@@ -291,7 +329,8 @@ class CameraActivity : ComponentActivity() {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { takePhoto(context = this@CameraActivity) },
+                    onClick = { takePhoto() },
+                    enabled = ableButtons,
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 8.dp),
@@ -305,6 +344,86 @@ class CameraActivity : ComponentActivity() {
         }
         ReturnToMain()
     }
+    fun addAcceptClothes(){
+        val intentAddClothesActivity = Intent(this, AddClothesActivity::class.java)
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                lastPhotoUri?.let {
+                    CODR.insert(getObject(it, clothesHolder))
+                }
+            }
+        }
+        startActivity(intentAddClothesActivity)
+        finish()
+    }
+    @Composable
+    fun AcceptPhoto(uri: Uri?) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp), // Add padding around the Box if necessary
+            contentAlignment = Alignment.Center // This centers the Card within the Box
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (isProcessing) {
+                        Text(text = stringResource(R.string.waiting_for_cut),
+                            fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(20.dp))
+                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                    } else {
+
+                        Image(
+                            painter = rememberAsyncImagePainter(uri),
+                            contentDescription = "Selected Photo",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color.Blue,
+                                    shape = RectangleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(onClick = {
+                            photoConfirmed = false
+                            photoAccepted = true
+                        }) {
+                            Text("Accept")
+                        }
+                        Button(onClick = {
+                            photoConfirmed = false
+                            ableButtons = true
+                            uri?.let {
+                                val fdelete =
+                                    File(getRealPathFromURI(it, this@CameraActivity) ?: "")
+                                if (fdelete.exists()) {
+                                    fdelete.delete()
+                                }
+                            }
+                        }) {
+                            Text("Ignore")
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @Composable
     fun ReturnToMain() {
@@ -315,8 +434,10 @@ class CameraActivity : ComponentActivity() {
             modifier = Modifier
                 .padding(10.dp)
                 .clickable {
-                    startActivity(intent)
-                    finish()
+                    if (ableButtons) {
+                        startActivity(intent)
+                        finish()
+                    }
                 },
             colors = CardDefaults.cardColors(
                 containerColor = Color.Transparent,

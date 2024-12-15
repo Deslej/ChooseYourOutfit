@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
 from tflite_runtime.interpreter import Interpreter
 
 def cut_clothe_from_image(image_uri, model_path):
@@ -43,6 +43,19 @@ def cut_clothe_from_image(image_uri, model_path):
             y_min = round((y_center - height / 2) * original_h)
             x_max = round((x_center + width / 2) * original_w)
             y_max = round((y_center + height / 2) * original_h)
+            y_m_min=0
+            y_m_max=original_h
+            x_m_min=0
+            x_m_max=original_w
+            if y_min-50>0:
+                y_m_min=y_min-50
+            if y_max+50<original_h:
+                y_m_max=y_max+50
+            if x_min-50>0:
+                x_m_min=x_min-50
+            if x_max+50 < original_w:
+                x_m_max = x_max+50
+
 
             # Ensure bounding box coordinates are within image dimensions
             x_min, x_max = max(0, x_min), min(original_w, x_max)
@@ -66,9 +79,15 @@ def cut_clothe_from_image(image_uri, model_path):
             rgba_image[..., :3] = img_np
             rgba_image[..., 3] = mask_cropped * 255
 
+            # Crop the RGBA image to the bounding box dimensions
+            cropped_rgba_image = rgba_image[y_m_min:y_m_max, x_m_min:x_m_max]
+
             # Update best score and object
-            best_extracted_object = Image.fromarray(rgba_image, "RGBA")
+            best_extracted_object = Image.fromarray(cropped_rgba_image, "RGBA")
             best_score = score
-    best_extracted_object.save(image_uri,format="PNG")
+
+    best_extracted_object.save(image_uri, format="PNG")
+
+
 
     return "mam dosc juz tego"

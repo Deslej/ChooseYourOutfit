@@ -105,6 +105,7 @@ class AddClothesActivity : ComponentActivity() {
                 onClick = {
                     intentCameraXActivity.putExtra("objectClothes", clothesHolder)
                     startActivity(intentCameraXActivity)
+                    finish()
                 },
                 isEnabled = isFormValid(name, color, material, season, category)
 

@@ -13,6 +13,7 @@ import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -89,13 +90,12 @@ class ChooseOutfitActivity : ComponentActivity() {
 
     var bitmap: Bitmap? = null
     private lateinit var processedImage: MutableState<Bitmap>
-    private val beforeProcessedImage: MutableMap<Bitmap, Int> = mutableMapOf()
+    private val mapOfChoosenBitmapClothes: MutableMap<Bitmap, Int> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        bitmap = BitmapFactory.decodeResource(resources, R.drawable.manekin)
+        bitmap = BitmapFactory.decodeResource(resources, R.drawable.manekin2)
         bitmap?.let {
             processedImage = mutableStateOf(it)
-            beforeProcessedImage[it] = 0
         }
 
         super.onCreate(savedInstanceState)
@@ -162,42 +162,12 @@ class ChooseOutfitActivity : ComponentActivity() {
                     onClick = {
                         if (currentImage.value == uri){
                             currentImage.value = null
-                            var bitmap :Bitmap? = null
-                            for ((k,v) in beforeProcessedImage){
-                                if (v == index){
-                                    bitmap=k
-                                }
-                            }
-                            bitmap?.let {
-                                processedImage.value=it
-                                beforeProcessedImage.remove(it)
-                            }
-
+                            deleteLastBitmapClotheWithIndex(index)
+                            drawClotheOnImage()
                         }
                         else {
-                            beforeProcessedImage.put(processedImage.value,index)
-                            if (currentImage.value != null){
-                                var bitmapD :Bitmap? = null
-                                var bitmapG :Bitmap? = null
-                                for ((k,v) in beforeProcessedImage){
-                                    if (v == index){
-                                        bitmapD=k
-                                    }
-                                }
-                                bitmapD?.let {
-                                    beforeProcessedImage.remove(it)
-                                }
-                                for ((k,v) in beforeProcessedImage){
-                                    if( index == v) {
-                                        bitmapG = k
-                                    }
-                                }
-                                bitmapG?.let { processedImage.value=it }
-
-
-                            }
+                            deleteLastBitmapClotheWithIndex(index)
                             currentImage.value = uri
-                            beforeProcessedImage.put(processedImage.value,index)
                             modelUse(context = this@ChooseOutfitActivity,uri)
                         }
                     },
@@ -224,6 +194,18 @@ class ChooseOutfitActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+
+    private fun deleteLastBitmapClotheWithIndex(index: Int) {
+        var bitmap :Bitmap? = null
+        for ((k,v) in mapOfChoosenBitmapClothes){
+            if (v == index){
+                bitmap=k
+            }
+        }
+        bitmap?.let {
+            mapOfChoosenBitmapClothes.remove(it)
         }
     }
 
@@ -259,11 +241,11 @@ class ChooseOutfitActivity : ComponentActivity() {
         val image: InputImage
 
         try {
-            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.manekin)
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.manekin2)
             image = InputImage.fromBitmap(bitmap, 0)
 
             poseDetector.process(image).addOnSuccessListener { pose ->
-                // Get landmarks
+
                  val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
                  val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
                  val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
@@ -271,50 +253,31 @@ class ChooseOutfitActivity : ComponentActivity() {
                  val rightknee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE)
                  val leftknee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE)
 
-                // Create a mutable bitmap to draw on it
-                val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-                val canvas = Canvas(mutableBitmap)
-                val paint = Paint().apply {
-                    color = Cr.RED  // Color for the landmarks
-                    style = Paint.Style.FILL
-                    strokeWidth = 5f
-                }
-
-                // Draw points for each landmark (checking if the landmark is not null)
                 leftShoulder?.let {
                     leftShoulderx = it.position.x
                     leftShouldery = it.position.y
-                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
                 }
                 rightShoulder?.let {
                     rightShoulderx = it.position.x
                     rightShouldery = it.position.y
-                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
                 }
                 leftHip?.let {
                     leftHipx = it.position.x
                     leftHipy = it.position.y
-                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
                 }
                 rightHip?.let {
                     rightHipx = it.position.x
                     rightHipy = it.position.y
-                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
                 }
                 leftknee?.let {
                     leftkneex = it.position.x
                     leftkneey = it.position.y
-                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
                 }
                 rightknee?.let {
                     rightkneex = it.position.x
                     rightkneey = it.position.y
-                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
                 }
 
-                // Now 'mutableBitmap' contains the image with drawn landmarks
-                // You can use 'mutableBitmap' for displaying in an ImageView or other purposes
-                processedImage.value = mutableBitmap  // Example: showing the image in an ImageView
             }
                 .addOnFailureListener { e ->
                     e.printStackTrace()
@@ -367,43 +330,55 @@ class ChooseOutfitActivity : ComponentActivity() {
         val outerList = tableWithPoints?.asList()
 
         val clothingPoints2 = outerList?.map { point ->
-            point.asList().map { it.toDouble() } // Konwertuj każdy punkt do List<Double>
+            point.asList().map { it.toDouble() }
         }
 
         val flattenedPoints = clothingPoints2?.flatMap { it.map { coord -> coord.toFloat() } }?.toFloatArray()
 
         val clothingPoints = flattenedPoints ?: floatArrayOf()
         var mannequinPoints = floatArrayOf()
+        var index = 0
         if (uri==currentImageShirt.value){
             mannequinPoints = floatArrayOf(
-            leftShoulderx-10, leftShouldery-25,
-            rightShoulderx+10, rightShouldery-60,
-            leftHipx+8, leftHipy,
-            rightHipx-8, rightHipy
-        )}else if(uri == currentImageTrousers.value){
+            leftShoulderx-20, leftShouldery-20,
+            rightShoulderx+25, rightShouldery-25,
+            leftHipx-10, leftHipy+5,
+            rightHipx+15, rightHipy
+        )
+            index = 1
+        }else if(uri == currentImageTrousers.value){
             mannequinPoints = floatArrayOf(
-                leftkneex, leftkneey-120,
-                rightkneex, rightkneey-120,
-                leftHipx-5, leftHipy+75,
-                rightHipx-10, rightHipy+75
+                leftkneex, leftkneey-90,
+                rightkneex, rightkneey-90,
+                leftHipx-20, leftHipy+45,
+                rightHipx+20, rightHipy+45
                 )
+            index = 2
 
         }
 
-
         val clothingBitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(uri))
 
-        // Transform clothing image to fit the mannequin
         val transformedBitmap = transformClothingImage(clothingBitmap, clothingPoints, mannequinPoints)
 
-        // Draw clothing on the mannequin
-        val mannequinBitmap = processedImage.value.copy(Bitmap.Config.ARGB_8888, true)
-        val canvas = Canvas(mannequinBitmap)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        canvas.drawBitmap(transformedBitmap, 0f, 0f, paint)
+        mapOfChoosenBitmapClothes.put(transformedBitmap,index)
 
-        // Update the processed image
-        processedImage.value = mannequinBitmap
+        drawClotheOnImage()
+    }
+
+    private fun drawClotheOnImage(){
+        bitmap?.let {
+            val mannequinBitmap = it.copy(Bitmap.Config.ARGB_8888, true)
+            for ((k,v) in mapOfChoosenBitmapClothes)
+            {
+                val canvas = Canvas(mannequinBitmap)
+                val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+                canvas.drawBitmap(k, 0f, 0f, paint)
+            }
+
+            // Update the processed image
+            processedImage.value = mannequinBitmap
+        }
     }
     private fun transformClothingImage(
         clothingBitmap: Bitmap,

@@ -13,17 +13,16 @@ import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -34,19 +33,24 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
 import com.chaquo.python.PyObject
@@ -65,14 +69,14 @@ import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import java.io.File
 import java.io.FileOutputStream
-import android.graphics.Color as Cr
 
 class ChooseOutfitActivity : ComponentActivity() {
     private var imageShirtUris = mutableStateListOf<Uri>()
+    private var imageShortsUris = mutableStateListOf<Uri>()
+    private var imageBlouseUris = mutableStateListOf<Uri>()
     private var imagePantsUris = mutableStateListOf<Uri>()
-    private var imageTopUris = mutableStateListOf<Uri>()
-    private var currentImageShirt = mutableStateOf<Uri?>(null)
-    private var currentImageTrousers = mutableStateOf<Uri?>(null)
+    private var currentImageTop = mutableStateOf<Uri?>(null)
+    private var currentImageBottom = mutableStateOf<Uri?>(null)
     private val CODR by inject<ClothesRepository>()
     private var rightShoulderx :Float = 0f
     private var rightShouldery :Float = 0f
@@ -110,6 +114,12 @@ class ChooseOutfitActivity : ComponentActivity() {
 
     @Composable
     fun MainView() {
+        Image(
+            painter = painterResource(R.drawable.fittingbackground),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize(),
+            )
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -126,10 +136,10 @@ class ChooseOutfitActivity : ComponentActivity() {
                 )
             }
             Column(Modifier.weight(3.5f)) {
-                ShowImages(imageShirtUris, currentImageShirt,1)
-                Spacer(Modifier.height(100.dp))
-                ShowImages(imagePantsUris, currentImageTrousers,2)
-
+                ShowImages(imageShirtUris, currentImageTop,1,"Shirt")
+                ShowImages(imageShortsUris, currentImageBottom,2,"Shorts")
+                ShowImages(imageBlouseUris, currentImageTop,1,"Blouse")
+                ShowImages(imagePantsUris, currentImageBottom,3,"Pants")
             }
         }
         ReturnToMain()
@@ -145,7 +155,8 @@ class ChooseOutfitActivity : ComponentActivity() {
                 when (category) {
                     ClothesCategoryType.SHIRT.displayName -> imageShirtUris.add(clothesObject.uri)
                     ClothesCategoryType.PANTS.displayName -> imagePantsUris.add(clothesObject.uri)
-                    // TODO - inne przypadki?
+                    ClothesCategoryType.BLOUSE.displayName -> imageBlouseUris.add(clothesObject.uri)
+                    ClothesCategoryType.SHORTS.displayName -> imageShortsUris.add(clothesObject.uri)
                     else -> {
                         // TODO - default zachowanie
                     }
@@ -155,43 +166,66 @@ class ChooseOutfitActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ShowImages(Uris: List<Uri>, currentImage: MutableState<Uri?>,index :Int) {
-        LazyRow() {
-            items(Uris) { uri ->
-                IconButton(
-                    onClick = {
-                        if (currentImage.value == uri){
-                            currentImage.value = null
-                            deleteLastBitmapClotheWithIndex(index)
-                            drawClotheOnImage()
-                        }
-                        else {
-                            deleteLastBitmapClotheWithIndex(index)
-                            currentImage.value = uri
-                            modelUse(context = this@ChooseOutfitActivity,uri)
-                        }
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent),
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(80.dp)
-                        .padding(5.dp)
-                ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(uri),
-                        contentDescription = null,
+    fun ShowImages(
+        uris: List<Uri>,
+        currentImage: MutableState<Uri?>,
+        index: Int,
+        name: String
+    ) {
+        Box(
+            modifier = Modifier
+                .height(175.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.closet),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Text(
+                text=name,
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 36.dp, start = 24.dp, end = 16.dp)
+            ) {
+                items(uris) { uri ->
+                    IconButton(
+                        onClick = {
+                            if (currentImage.value == uri) {
+                                currentImage.value = null
+                                deleteLastBitmapClotheWithIndex(index)
+                                drawClotheOnImage()
+                            } else {
+                                deleteLastBitmapClotheWithIndex(index)
+                                currentImage.value = uri
+                                modelUse(context = this@ChooseOutfitActivity, uri,index)
+                            }
+                        },
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent),
                         modifier = Modifier
-                            .size(100.dp)
-                            .then(
-                                if (currentImage.value == uri)
-                                    Modifier.border(
-                                        4.dp,
-                                        Color.Black,
-                                        shape = CircleShape
-                                    ) else Modifier
-                            ),
-                        contentScale = ContentScale.FillBounds
-                    )
+                            .size(120.dp)
+                            .padding(end = 20.dp)
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(uri),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .then(
+                                    if (currentImage.value == uri) {
+                                        Modifier.border(4.dp, Color.Black, shape = CircleShape)
+                                    } else Modifier
+                                )
+                        )
+                    }
                 }
             }
         }
@@ -199,9 +233,15 @@ class ChooseOutfitActivity : ComponentActivity() {
 
     private fun deleteLastBitmapClotheWithIndex(index: Int) {
         var bitmap :Bitmap? = null
+        var lastValue = 0
         for ((k,v) in mapOfChoosenBitmapClothes){
             if (v == index){
-                bitmap=k
+                bitmap = k
+            }else if(index != 1){
+                if((v > lastValue) and (v != 1)){
+                    lastValue = v
+                    bitmap = k
+                }
             }
         }
         bitmap?.let {
@@ -286,7 +326,7 @@ class ChooseOutfitActivity : ComponentActivity() {
             e.printStackTrace()
         }
     }
-    fun modelUse(context: Context,uri: Uri){
+    fun modelUse(context: Context,uri: Uri,index: Int){
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
 
@@ -296,7 +336,7 @@ class ChooseOutfitActivity : ComponentActivity() {
                 val realPath = getRealPathFromURI(uri, context)
                 tableWithPoints = segmenter.callAttr("getClothePoints", realPath, modelPath)
 
-                applyClothingToMannequin(uri)
+                applyClothingToMannequin(uri,index)
             }
         }
     }
@@ -324,8 +364,7 @@ class ChooseOutfitActivity : ComponentActivity() {
             null
         }
     }
-    private fun applyClothingToMannequin(uri :Uri) {
-        // Ensure landmarks and clothing points are available
+    private fun applyClothingToMannequin(uri :Uri,index: Int) {
 
         val outerList = tableWithPoints?.asList()
 
@@ -337,24 +376,27 @@ class ChooseOutfitActivity : ComponentActivity() {
 
         val clothingPoints = flattenedPoints ?: floatArrayOf()
         var mannequinPoints = floatArrayOf()
-        var index = 0
-        if (uri==currentImageShirt.value){
+        if (uri==currentImageTop.value){
             mannequinPoints = floatArrayOf(
             leftShoulderx-20, leftShouldery-20,
             rightShoulderx+25, rightShouldery-25,
             leftHipx-10, leftHipy+5,
             rightHipx+15, rightHipy
         )
-            index = 1
-        }else if(uri == currentImageTrousers.value){
+        }else if((uri == currentImageBottom.value)and (index==2)){
             mannequinPoints = floatArrayOf(
                 leftkneex, leftkneey-90,
                 rightkneex, rightkneey-90,
                 leftHipx-20, leftHipy+45,
                 rightHipx+20, rightHipy+45
                 )
-            index = 2
-
+        }else if((uri == currentImageBottom.value) and (index == 3)){
+            mannequinPoints = floatArrayOf(
+                leftkneex+10, leftkneey+190,
+                rightkneex, rightkneey+160,
+                leftHipx-20, leftHipy,
+                rightHipx+20, rightHipy
+            )
         }
 
         val clothingBitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(uri))
@@ -376,7 +418,6 @@ class ChooseOutfitActivity : ComponentActivity() {
                 canvas.drawBitmap(k, 0f, 0f, paint)
             }
 
-            // Update the processed image
             processedImage.value = mannequinBitmap
         }
     }

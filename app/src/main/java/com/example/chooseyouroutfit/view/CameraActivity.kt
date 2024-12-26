@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -361,8 +362,8 @@ class CameraActivity : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp), // Add padding around the Box if necessary
-            contentAlignment = Alignment.Center // This centers the Card within the Box
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
         ) {
             Card(
                 modifier = Modifier
@@ -385,13 +386,11 @@ class CameraActivity : ComponentActivity() {
                             painter = rememberAsyncImagePainter(uri),
                             contentDescription = "Selected Photo",
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
                                 .border(
                                     width = 2.dp,
                                     color = Color.Blue,
                                     shape = RectangleShape),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Fit
                         )
                     }
 

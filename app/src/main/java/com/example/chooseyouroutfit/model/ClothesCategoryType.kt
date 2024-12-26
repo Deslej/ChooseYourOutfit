@@ -1,13 +1,16 @@
 package com.example.chooseyouroutfit.model
 
 enum class ClothesCategoryType(val displayName: String) {
-    TOP("Blouse"),
-    DRESS("Dress"),
+    BLOUSE("Blouse"),
+    //DRESS("Dress"),
+    SHORTS("Shorts"),
     SHIRT("Shirt"),
     PANTS("Pants"),
-    SKIRT("Skirt"),
-    SHOES("Shoes"),
-    ACCESSORIES("Accessories");
+    //SKIRT("Skirt"),
+    //SHOES("Shoes"),
+    //ACCESSORIES("Accessories")
+    //Poniewaz reszty raczej uzywac nie bedziemy XDDD
+    ;
 
     companion object {
         fun getCategoryNames(): List<String> {

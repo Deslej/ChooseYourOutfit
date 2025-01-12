@@ -1,6 +1,7 @@
 package com.example.chooseyouroutfit.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
@@ -25,6 +26,18 @@ interface OutfitDao {
     @Query("SELECT * FROM outfits WHERE outfitId = :outfitId")
     suspend fun getOutfitWithItems(outfitId: Long): OutfitWithItems
 
-    @Query("SELECT * FROM outfits WHERE name LIKE :outfitName")
-    suspend fun searchOutfits(outfitName: String): List<OutfitWithItems>
+    @Transaction
+    @Query("SELECT * FROM outfits")
+    suspend fun getAllOutfitsWithItems(): List<OutfitWithItems>
+
+    @Query("SELECT * FROM outfits WHERE name LIKE '%' || :name || '%'")
+    suspend fun getOutfitsByName(name: String): List<OutfitWithItems>
+
+    // Dodajemy metodę usuwania outfitu
+    @Delete
+    suspend fun deleteOutfit(outfit: Outfit)
+
+    // Dodajemy metodę usuwania powiązanych rekordów w OutfitItem
+    @Query("DELETE FROM outfits WHERE outfitId = :outfitId")
+    suspend fun deleteOutfitItemsByOutfitId(outfitId: Long)
 }

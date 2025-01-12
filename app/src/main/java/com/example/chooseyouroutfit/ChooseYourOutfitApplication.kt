@@ -3,7 +3,7 @@ package com.example.chooseyouroutfit
 import android.app.Application
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
-import com.example.chooseyouroutfit.data.database.AppDatabase
+import com.example.chooseyouroutfit.data.AppDatabase
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.data.repository.OutfitItemRepository
 import com.example.chooseyouroutfit.data.repository.OutfitRepository

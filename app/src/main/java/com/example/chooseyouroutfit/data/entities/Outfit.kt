@@ -8,5 +8,6 @@ data class Outfit(
 
     @PrimaryKey(autoGenerate = true)
     val outfitId: Long = 0,
-    val name: String
+    val name: String,
+    val image: ByteArray? = null
 )

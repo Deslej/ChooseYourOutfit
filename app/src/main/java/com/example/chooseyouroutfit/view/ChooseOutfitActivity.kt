@@ -10,6 +10,7 @@ import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -28,17 +29,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +61,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.example.chooseyouroutfit.R
+import com.example.chooseyouroutfit.data.entities.Outfit
+import com.example.chooseyouroutfit.data.entities.OutfitItem
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.model.ClothesCategoryType
 import com.example.chooseyouroutfit.ui.theme.ChooseYourOutfitTheme
@@ -67,6 +74,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
@@ -142,6 +150,7 @@ class ChooseOutfitActivity : ComponentActivity() {
                 ShowImages(imagePantsUris, currentImageBottom,3,"Pants")
             }
         }
+        SaveOutfitButton()
         ReturnToMain()
 
     }
@@ -441,4 +450,97 @@ class ChooseOutfitActivity : ComponentActivity() {
 
         return transformedBitmap
     }
+
+    @Composable
+    fun SaveOutfitButton(modifier: Modifier = Modifier) {
+        var showDialog by remember { mutableStateOf(false) }
+        var outfitName by remember { mutableStateOf("") }
+
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                confirmButton = {
+                    Button(onClick = {
+                        if (outfitName.isNotEmpty()) {
+                            saveOutfitToDatabase(outfitName)
+                            showDialog = false
+                        }
+                    }) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+                },
+                text = {
+                    Column {
+                        Text("Enter Outfit Name:")
+                        TextField(
+                            value = outfitName,
+                            onValueChange = { outfitName = it }
+                        )
+                    }
+                }
+            )
+        }
+
+        if (currentImageTop.value != null && currentImageBottom.value != null) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 10.dp, start = 70.dp)
+            ){
+                Button(
+                    onClick = { showDialog = true },
+                    modifier = Modifier.align(Alignment.BottomStart)
+                ) {
+                    Text("Save Outfit")
+                }
+            }
+
+        }
+    }
+    private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
+    }
+
+
+    private fun saveOutfitToDatabase(name: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val topId = currentImageTop.value?.let { uri -> CODR.getClothesIdByUri(uri.toString()) }
+            val bottomId = currentImageBottom.value?.let { uri -> CODR.getClothesIdByUri(uri.toString()) }
+
+            // Sprawdź, czy bitmapa manekina jest dostępna
+            val mannequinBitmap = processedImage.value
+            if (topId != null && bottomId != null && mannequinBitmap != null) {
+                // Konwersja bitmapy na ByteArray
+                val outfitImage = bitmapToByteArray(mannequinBitmap)
+
+                // Tworzenie nowego outfitu z obrazem
+                val newOutfit = Outfit(name = name, image = outfitImage) // Dodaj pole image w modelu Outfit
+                val outfitId = CODR.insertOutfit(newOutfit)
+
+                val outfitItems = listOf(
+                    OutfitItem(outfitId = outfitId, clothesId = topId),
+                    OutfitItem(outfitId = outfitId, clothesId = bottomId)
+                )
+
+                CODR.insertOutfitItems(outfitItems)
+
+                withContext(Dispatchers.Main) {
+                    showToast("Outfit został zapisany!")
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    showToast("Trzeba wybrać więcej niż 1 część outfitu!")
+                }
+            }
+        }
+    }
+    fun Context.showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()}
+
 }

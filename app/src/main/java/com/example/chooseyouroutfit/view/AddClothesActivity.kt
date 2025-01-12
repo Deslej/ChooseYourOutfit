@@ -68,7 +68,6 @@ class AddClothesActivity : ComponentActivity() {
         var material by rememberSaveable { mutableStateOf("") }
         var season by rememberSaveable { mutableStateOf("") }
         var category by rememberSaveable { mutableStateOf("") }
-        // val uri: Uri (?)
 
         Column(
             modifier = Modifier
@@ -111,14 +110,6 @@ class AddClothesActivity : ComponentActivity() {
 
             )
 
-//            ReusableActionButton(
-//                text = stringResource(R.string.addItem),
-//                onClick = {
-//                    //    addItemToDatabase(clothesHolder)
-//                },
-//                isEnabled = isFormValid(name, color, material, season, category)
-//
-//            )
         }
     }
 

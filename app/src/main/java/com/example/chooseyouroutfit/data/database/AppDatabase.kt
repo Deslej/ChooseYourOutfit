@@ -1,4 +1,4 @@
-package com.example.chooseyouroutfit.data.database
+package com.example.chooseyouroutfit.data
 
 import android.content.Context
 import androidx.room.Database
@@ -13,14 +13,7 @@ import com.example.chooseyouroutfit.data.entities.Outfit
 import com.example.chooseyouroutfit.data.entities.OutfitItem
 import com.example.chooseyouroutfit.model.Converters
 
-@Database(
-    entities = [
-        Clothes::class,
-        Outfit::class,
-        OutfitItem::class],
-    version = 1
-)
-
+@Database(entities = [Clothes::class, Outfit::class, OutfitItem::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun clothesDao(): ClothesDao
@@ -28,18 +21,18 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun outfitItemDao(): OutfitItemDao
 
     companion object {
-
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "app_database"
-                ).build()
+                    "AppDatabase"
+                )
+                    .fallbackToDestructiveMigration() // Zezwól na destrukcyjne migracje
+                    .build()
                 INSTANCE = instance
                 instance
             }

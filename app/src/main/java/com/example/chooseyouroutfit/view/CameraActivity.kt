@@ -21,13 +21,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,14 +33,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,19 +56,19 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
-import com.chaquo.python.Python
 import com.example.chooseyouroutfit.R
 import com.example.chooseyouroutfit.data.entities.Clothes
 import com.example.chooseyouroutfit.data.repository.ClothesRepository
 import com.example.chooseyouroutfit.model.ClothesHolder
-import com.example.chooseyouroutfit.ui.theme.DullBrown
+import com.example.chooseyouroutfit.ui.components.ReusableReturnArrow
+import com.example.chooseyouroutfit.utils.getRealPathFromURI
+import com.example.chooseyouroutfit.utils.runModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService
@@ -110,12 +103,12 @@ class CameraActivity : ComponentActivity() {
 
             }
             if (photoConfirmed) {
-                ableButtons=false
-                AcceptPhoto(uri =lastPhotoUri )
+                ableButtons = false
+                AcceptPhoto(uri = lastPhotoUri)
                 lastPhotoUri?.let { modelUse(this, it) }
 
             }
-            if(photoAccepted){
+            if (photoAccepted) {
                 addAcceptClothes()
             }
 
@@ -163,58 +156,30 @@ class CameraActivity : ComponentActivity() {
                     Log.d(TAG, msg)
                     lifecycleScope.launch {
                         withContext(NonCancellable) {
-                        output.savedUri?.let { uri ->
-                            lastPhotoUri = uri
-                            photoConfirmed=true
-                        } ?: run {
-                            Log.e(TAG, "Saved URI is null, cannot save to DB.")
+                            output.savedUri?.let { uri ->
+                                lastPhotoUri = uri
+                                photoConfirmed = true
+                            } ?: run {
+                                Log.e(TAG, "Saved URI is null, cannot save to DB.")
+                            }
                         }
-                    }
                     }
                 }
             }
         )
     }
-    fun modelUse(context: Context,uri: Uri){
+
+    fun modelUse(context: Context, uri: Uri) {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 isProcessing = true
-                val modelPath = copyAssetToInternalStorage("last_float32.tflite", context)
-                val py = Python.getInstance()
-                val segmenter = py.getModule("model")
-                val realPath = getRealPathFromURI(uri, context)
-                segmenter.callAttr("cut_clothe_from_image", realPath, modelPath)
+                runModel(context, uri, "last_float32.tflite", "model", "cut_clothe_from_image")
                 isProcessing = false
             }
         }
     }
 
-    fun copyAssetToInternalStorage(assetFileName: String, context: Context): String {
-        val file = File(context.filesDir, assetFileName)
-        if (!file.exists()) {
-            context.assets.open(assetFileName).use { inputStream ->
-                FileOutputStream(file).use { outputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-            }
-        }
-        return file.absolutePath
-    }
-
-    fun getRealPathFromURI(contentUri: Uri, context: Context): String? {
-        val cursor = context.contentResolver.query(contentUri, null, null, null, null)
-        return if (cursor != null) {
-            cursor.moveToFirst()
-            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
-            val path = if (idx != -1) cursor.getString(idx) else null
-            cursor.close()
-            path
-        } else {
-            null
-        }
-    }
-
-    private fun getObject(uri: Uri, clothesHolder: ClothesHolder):Clothes {
+    private fun getObject(uri: Uri, clothesHolder: ClothesHolder): Clothes {
         val clothesObject = Clothes(
             name = clothesHolder.name,
             category = clothesHolder.category,
@@ -345,7 +310,8 @@ class CameraActivity : ComponentActivity() {
         }
         ReturnToMain()
     }
-    fun addAcceptClothes(){
+
+    fun addAcceptClothes() {
         val intentAddClothesActivity = Intent(this, AddClothesActivity::class.java)
         lifecycleScope.launch {
             withContext(NonCancellable) {
@@ -357,6 +323,7 @@ class CameraActivity : ComponentActivity() {
         startActivity(intentAddClothesActivity)
         finish()
     }
+
     @Composable
     fun AcceptPhoto(uri: Uri?) {
         Box(
@@ -376,8 +343,10 @@ class CameraActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (isProcessing) {
-                        Text(text = stringResource(R.string.waiting_for_cut),
-                            fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(R.string.waiting_for_cut),
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(Modifier.height(20.dp))
                         CircularProgressIndicator(modifier = Modifier.size(48.dp))
                     } else {
@@ -389,7 +358,8 @@ class CameraActivity : ComponentActivity() {
                                 .border(
                                     width = 2.dp,
                                     color = Color.Blue,
-                                    shape = RectangleShape),
+                                    shape = RectangleShape
+                                ),
                             contentScale = ContentScale.Fit
                         )
                     }
@@ -426,33 +396,6 @@ class CameraActivity : ComponentActivity() {
 
     @Composable
     fun ReturnToMain() {
-        val context = LocalContext.current
-        val intent = Intent(context, AddClothesActivity::class.java)
-
-        Card(
-            modifier = Modifier
-                .padding(10.dp)
-                .clickable {
-                    if (ableButtons) {
-                        startActivity(intent)
-                        finish()
-                    }
-                },
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Transparent,
-                contentColor = Color.White
-            ),
-            shape = CircleShape,
-            border = BorderStroke(2.dp, Color.Black)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                modifier = Modifier
-                    .size(35.dp)
-                    .padding(5.dp),
-                contentDescription = "Strzałka powrotu",
-                tint = Color.White
-            )
-        }
+        ReusableReturnArrow()
     }
 }

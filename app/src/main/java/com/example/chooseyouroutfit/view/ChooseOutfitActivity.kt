@@ -157,7 +157,6 @@ class ChooseOutfitActivity : ComponentActivity() {
                     ClothesCategoryType.BLOUSE.displayName -> imageBlouseUris.add(clothesObject.uri)
                     ClothesCategoryType.SHORTS.displayName -> imageShortsUris.add(clothesObject.uri)
                     else -> {
-                        // TODO - default zachowanie
                     }
                 }
             }
@@ -186,7 +185,10 @@ class ChooseOutfitActivity : ComponentActivity() {
                 text = name,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.TopCenter)
+                color = Color(0xFF481406),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 9.dp)
             )
 
             LazyRow(

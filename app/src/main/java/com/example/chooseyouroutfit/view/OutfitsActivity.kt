@@ -79,7 +79,7 @@ class OutfitsActivity : ComponentActivity() {
     fun OutfitList(outfits: List<OutfitWithItems>, onOutfitDeleted: (OutfitWithItems) -> Unit) {
         if (outfits.isEmpty()) {
             Text(
-                text = "Nie znaleziono outfitów.",
+                text = "No results.",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
@@ -118,12 +118,12 @@ class OutfitsActivity : ComponentActivity() {
             ReusableTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = "Szukaj po nazwie"
+                placeholder = "Outfit Name"
             )
 
             // Przycisk wyszukiwania
             ReusableActionButton(
-                text = "Szukaj",
+                text = "Search",
                 onClick = {
                     coroutineScope.launch {
                         outfits = if (searchQuery.isBlank()) {
@@ -187,7 +187,7 @@ class OutfitsActivity : ComponentActivity() {
                                 .background(Color.Gray)
                         ) {
                             Text(
-                                text = "brak zdjęcia",
+                                text = "No Photo",
                                 color = Color.White,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.align(Alignment.Center)
@@ -200,13 +200,13 @@ class OutfitsActivity : ComponentActivity() {
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = "Nazwa Outfitu: ${outfitWithItems.outfit.name}",
+                            text = "Outfit Name: ${outfitWithItems.outfit.name}",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Ubrania:",
+                            text = "Clothes:",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -261,7 +261,7 @@ class OutfitsActivity : ComponentActivity() {
                         // Obrazek manekina
                         Image(
                             bitmap = imageBitmap,
-                            contentDescription = "manekin",
+                            contentDescription = "Model",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(300.dp) // Zwiększenie wysokości obrazu
@@ -272,7 +272,7 @@ class OutfitsActivity : ComponentActivity() {
 
                         // Informacje o przedmiotach
                         Text(
-                            text = "Ubrania na manekinie:",
+                            text = "Clothes on a model:",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -296,22 +296,22 @@ class OutfitsActivity : ComponentActivity() {
                                             .padding(8.dp)
                                     ) {
                                         Text(
-                                            text = "Nazwa: ${clothes.name}",
+                                            text = "Name: ${clothes.name}",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "Sezon: ${clothes.season}",
+                                            text = "Season: ${clothes.season}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "Materiał: ${clothes.material}",
+                                            text = "Material: ${clothes.material}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "Kolor: ${clothes.color}",
+                                            text = "Color: ${clothes.color}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )

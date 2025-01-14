@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -134,10 +135,10 @@ class ChooseOutfitActivity : ComponentActivity() {
                 )
             }
             Column(Modifier.weight(3.5f)) {
-                ShowImages(imageShirtUris, currentImageTop, 1, "Shirt")
-                ShowImages(imageShortsUris, currentImageBottom, 2, "Shorts")
-                ShowImages(imageBlouseUris, currentImageTop, 1, "Blouse")
-                ShowImages(imagePantsUris, currentImageBottom, 3, "Pants")
+                ShowImages(imageShirtUris, currentImageTop, 1, stringResource(R.string.shirt))
+                ShowImages(imageShortsUris, currentImageBottom, 2, stringResource(R.string.shorts))
+                ShowImages(imageBlouseUris, currentImageTop, 1, stringResource(R.string.blouse))
+                ShowImages(imagePantsUris, currentImageBottom, 3, stringResource(R.string.pants))
             }
         }
         SaveOutfitButton()
@@ -412,17 +413,17 @@ class ChooseOutfitActivity : ComponentActivity() {
                             showDialog = false
                         }
                     }) {
-                        Text("Save")
+                        Text(stringResource(R.string.save))
                     }
                 },
                 dismissButton = {
                     Button(onClick = { showDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
                 text = {
                     Column {
-                        Text("Enter Outfit Name:")
+                        Text(stringResource(R.string.name))
                         TextField(
                             value = outfitName,
                             onValueChange = { outfitName = it }
@@ -442,7 +443,7 @@ class ChooseOutfitActivity : ComponentActivity() {
                     onClick = { showDialog = true },
                     modifier = Modifier.align(Alignment.BottomStart)
                 ) {
-                    Text("Save Outfit")
+                    Text(stringResource(R.string.save))
                 }
             }
 

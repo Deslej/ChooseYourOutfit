@@ -44,12 +44,10 @@
         <activity
             android:name=".view.OutfitsActivity"
             android:exported="false"
-            android:label="@string/seeOutfits"
             android:theme="@style/Theme.ChooseYourOutfit" />
         <activity
             android:name=".view.WardrobeActivity"
             android:exported="false"
-            android:label="@string/seeWardrobe"
             android:theme="@style/Theme.ChooseYourOutfit" />
         <activity
             android:name=".view.MainActivity"

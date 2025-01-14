@@ -42,9 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.chooseyouroutfit.R
 import com.example.chooseyouroutfit.data.entities.OutfitWithItems
 import com.example.chooseyouroutfit.data.repository.OutfitRepository
 import com.example.chooseyouroutfit.ui.components.ReusableActionButton
@@ -79,7 +81,7 @@ class OutfitsActivity : ComponentActivity() {
     fun OutfitList(outfits: List<OutfitWithItems>, onOutfitDeleted: (OutfitWithItems) -> Unit) {
         if (outfits.isEmpty()) {
             Text(
-                text = "Nie znaleziono outfitów.",
+                text = stringResource(R.string.nooutfit),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
@@ -118,12 +120,12 @@ class OutfitsActivity : ComponentActivity() {
             ReusableTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = "Szukaj po nazwie"
+                placeholder = stringResource(R.string.search)
             )
 
             // Przycisk wyszukiwania
             ReusableActionButton(
-                text = "Szukaj",
+                text = stringResource(R.string.search),
                 onClick = {
                     coroutineScope.launch {
                         outfits = if (searchQuery.isBlank()) {
@@ -200,13 +202,13 @@ class OutfitsActivity : ComponentActivity() {
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = "Nazwa Outfitu: ${outfitWithItems.outfit.name}",
+                            text = "${stringResource(R.string.name)} ${outfitWithItems.outfit.name}",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Ubrania:",
+                            text = stringResource(R.string.clothes),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -272,7 +274,7 @@ class OutfitsActivity : ComponentActivity() {
 
                         // Informacje o przedmiotach
                         Text(
-                            text = "Ubrania na manekinie:",
+                            text = stringResource(R.string.clothes),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -296,22 +298,22 @@ class OutfitsActivity : ComponentActivity() {
                                             .padding(8.dp)
                                     ) {
                                         Text(
-                                            text = "Nazwa: ${clothes.name}",
+                                            text = "${stringResource(R.string.name)} ${clothes.name}",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "Sezon: ${clothes.season}",
+                                            text = "${stringResource(R.string.season)} ${clothes.season}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "Materiał: ${clothes.material}",
+                                            text = "${stringResource(R.string.material)} ${clothes.material}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "Kolor: ${clothes.color}",
+                                            text = "${stringResource(R.string.color)} ${clothes.color}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -330,7 +332,7 @@ class OutfitsActivity : ComponentActivity() {
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Close",
+                                contentDescription = stringResource(R.string.close),
                                 tint = Color.Black
                             )
                         }

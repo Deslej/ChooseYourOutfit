@@ -111,7 +111,7 @@ class WardrobeActivity : ComponentActivity() {
                 ReusableTextField(
                     value = selectedName,
                     onValueChange = { selectedName = it },
-                    placeholder = "Name"
+                    placeholder = stringResource(R.string.name)
                 )
             }
 
@@ -119,7 +119,7 @@ class WardrobeActivity : ComponentActivity() {
                 ReusableTextField(
                     value = selectedColor,
                     onValueChange = { selectedColor = it },
-                    placeholder = "Color"
+                    placeholder = stringResource(R.string.color)
                 )
             }
 
@@ -127,7 +127,7 @@ class WardrobeActivity : ComponentActivity() {
                 ReusableTextField(
                     value = selectedMaterial,
                     onValueChange = { selectedMaterial = it },
-                    placeholder = "Material"
+                    placeholder = stringResource(R.string.material)
                 )
             }
 
@@ -191,11 +191,11 @@ class WardrobeActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text(text = "Name: ${clothes.name}")
-                        Text(text = "Color: ${clothes.color}")
-                        Text(text = "Material: ${clothes.material}")
-                        Text(text = "Season: ${clothes.season}")
-                        Text(text = "Category: ${clothes.category}")
+                        Text(text = "${stringResource(R.string.name)} ${clothes.name}\"")
+                        Text(text = "${stringResource(R.string.color)} ${clothes.color}\"")
+                        Text(text = "${stringResource(R.string.material)} ${clothes.material}\"")
+                        Text(text = "${stringResource(R.string.season)} ${clothes.season}\"")
+                        Text(text = "${stringResource(R.string.category)} ${clothes.category}\"")
                     }
                 }
 
@@ -226,7 +226,7 @@ class WardrobeActivity : ComponentActivity() {
         var selectedSeason by remember { mutableStateOf(options[0]) }
 
         ReusableDropdownMenu(
-            label = "Select Season",
+            label = stringResource(R.string.season),
             options = options,
             selectedOption = selectedSeason,
             onOptionSelected = { seasonName ->
@@ -242,7 +242,7 @@ class WardrobeActivity : ComponentActivity() {
         var selectedCategory by remember { mutableStateOf(options[0]) }
 
         ReusableDropdownMenu(
-            label = "Select Category",
+            label = stringResource(R.string.category),
             options = options,
             selectedOption = selectedCategory,
             onOptionSelected = { categoryName ->

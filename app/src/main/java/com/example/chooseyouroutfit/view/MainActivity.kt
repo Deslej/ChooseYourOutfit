@@ -7,17 +7,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,47 +45,98 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
         val configuration = LocalConfiguration.current
         val painter = getBackgroundPainter(configuration.orientation)
+        var showDialog by remember { mutableStateOf(false) }
 
-        Image(
-            painter = painter,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize(),
-            contentDescription = "Main Background"
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 450.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            CustomButton(
-                text = stringResource(R.string.chooseOutfit),
-                onClick = {
-                    startActivity(Intent(context, ChooseOutfitActivity::class.java))
-                }
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painter,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize(),
+                contentDescription = "Main Background"
             )
 
-            CustomButton(
-                text = stringResource(R.string.seeOutfits),
-                onClick = {
-                    startActivity(Intent(context, OutfitsActivity::class.java))
-                }
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 450.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                CustomButton(
+                    text = stringResource(R.string.chooseOutfit),
+                    onClick = {
+                        context.startActivity(Intent(context, ChooseOutfitActivity::class.java))
+                    }
+                )
 
-            CustomButton(
-                text = stringResource(R.string.addItem),
-                onClick = {
-                    startActivity(Intent(context, AddClothesActivity::class.java))
-                }
-            )
+                CustomButton(
+                    text = stringResource(R.string.outfits),
+                    onClick = {
+                        context.startActivity(Intent(context, OutfitsActivity::class.java))
+                    }
+                )
 
-            CustomButton(
-                text = stringResource(R.string.seeWardrobe),
-                onClick = {
-                    startActivity(Intent(context, WardrobeActivity::class.java))
-                }
-            )
+                CustomButton(
+                    text = stringResource(R.string.addItem),
+                    onClick = {
+                        context.startActivity(Intent(context, AddClothesActivity::class.java))
+                    }
+                )
+
+                CustomButton(
+                    text = stringResource(R.string.wardrobe),
+                    onClick = {
+                        context.startActivity(Intent(context, WardrobeActivity::class.java))
+                    }
+                )
+            }
+
+            IconButton(
+                onClick = { showDialog = true },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.infoicon), // Używamy naszej ikony wektorowej
+                    contentDescription = "Info",
+                    tint = Color.White // Możesz ustawić kolor wektora
+                )
+            }
+
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.info),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                    },
+                    text = {
+                        Box(
+                            modifier = Modifier
+                                .height(400.dp) // Ustaw wysokość okienka dialogowego
+                                .verticalScroll(rememberScrollState()) // Dodaj możliwość przewijania w pionie
+                        ) {
+                            Text(
+                                text = stringResource(R.string.description),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showDialog = false }) {
+                            Text(text = stringResource(R.string.close))
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                )
+            }
+
         }
     }
 

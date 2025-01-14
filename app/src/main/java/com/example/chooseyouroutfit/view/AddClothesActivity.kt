@@ -68,13 +68,13 @@ class AddClothesActivity : ComponentActivity() {
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             ReusableTextField(
-                value = name, onValueChange = { name = it }, placeholder = "Name"
+                value = name, onValueChange = { name = it }, placeholder = stringResource(R.string.name)
             )
             ReusableTextField(
-                value = color, onValueChange = { color = it }, placeholder = "Color"
+                value = color, onValueChange = { color = it }, placeholder = stringResource(R.string.color)
             )
             ReusableTextField(
-                value = material, onValueChange = { material = it }, placeholder = "Material"
+                value = material, onValueChange = { material = it }, placeholder = stringResource(R.string.material)
             )
             CategoryDropDownMenu(categorySelection = { selectedCategory ->
                 category = selectedCategory
@@ -121,7 +121,7 @@ class AddClothesActivity : ComponentActivity() {
         var selectedSeason by remember { mutableStateOf(options[0]) }
 
         ReusableDropdownMenu(
-            label = "Select Season",
+            label = stringResource(R.string.season),
             options = options,
             selectedOption = selectedSeason,
             onOptionSelected = { seasonName ->
@@ -138,7 +138,7 @@ class AddClothesActivity : ComponentActivity() {
         var selectedCategory by remember { mutableStateOf(options[0]) }
 
         ReusableDropdownMenu(
-            label = "Select Category",
+            label = stringResource(R.string.category),
             options = options,
             selectedOption = selectedCategory,
             onOptionSelected = { categoryName ->

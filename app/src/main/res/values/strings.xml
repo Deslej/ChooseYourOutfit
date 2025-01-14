@@ -2,8 +2,6 @@
     <string name="app_name">ChooseYourOutfit</string>
     <string name="chooseOutfit" translatable="false">Create Outfit</string>
     <string name="addItem" translatable="false">Add Item</string>
-    <string name="seeWardrobe" translatable="false">Wardrobe</string>
-    <string name="seeOutfits" translatable="false">Outfits</string>
     <string name="title_activity_add_clothes">AddClothesActivity</string>
     <string name="title_activity_choose_outfit">ChooseOutfitActivity</string>
     <string name="title_activity_camera_xactivity">CameraXActivity</string>
@@ -18,4 +16,21 @@
     <string name="season">Season</string>
     <string name="material">Material</string>
     <string name="waiting_for_cut">Cutting clothe</string>
+    <string name="close">Close</string>
+    <string name="category">Category</string>
+    <string name="accept">Accept</string>
+    <string name="ignore">Ignore</string>
+    <string name="shorts">Shorts</string>
+    <string name="blouse">Blouse</string>
+    <string name="pants">Pants</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="eon">Enter outfit name</string>
+    <string name="clothes">Clothes</string>
+    <string name="nooutfit">No outfit found.</string>
+    <string name="outfits">Outfits</string>
+    <string name="wardrobe">Wardrobe</string>
+    <string name="info">Information</string>
+    <string name="description">Information</string>
+
 </resources>

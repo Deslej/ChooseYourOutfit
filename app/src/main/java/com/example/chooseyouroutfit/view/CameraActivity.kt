@@ -373,7 +373,7 @@ class CameraActivity : ComponentActivity() {
                             photoConfirmed = false
                             photoAccepted = true
                         }) {
-                            Text("Accept")
+                            Text(stringResource(R.string.accept))
                         }
                         Button(onClick = {
                             photoConfirmed = false
@@ -386,7 +386,7 @@ class CameraActivity : ComponentActivity() {
                                 }
                             }
                         }) {
-                            Text("Ignore")
+                            Text(stringResource(R.string.ignore))
                         }
                     }
                 }

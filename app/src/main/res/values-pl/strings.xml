@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ChooseYourOutfit</string>
-    <string name="chooseoutfit">Wybierz ubranie</string>
-    <string name="addoutfit">Dodaj ubranie</string>
+    <string name="chooseOutfit">Wybierz outfit</string>
+    <string name="addItem">Dodaj ubranie</string>
     <string name="title_activity_add_clothes">AddClothesActivity</string>
     <string name="title_activity_choose_outfit">ChooseOutfitActivity</string>
     <string name="title_activity_camera_xactivity">CameraXActivity</string>
     <string name="title_activity_see_outfits">OutfitsActivity</string>
     <string name="title_activity_see_wardrobe">WardrobeActivity</string>
     <string name="photo">Zrób zdjęcie</string>
-    <string name="search">Search</string>
+    <string name="search">Szukaj</string>
     <string name="trousers">Spodnie</string>
     <string name="shirt">Koszulka</string>
     <string name="name">Nazwa</string>
@@ -17,4 +17,92 @@
     <string name="season">Sezon</string>
     <string name="material">Materiał</string>
     <string name="waiting_for_cut">Wycinanie ubrania</string>
+    <string name="close">Zamknij</string>
+    <string name="category">Kategoria</string>
+    <string name="accept">Akceptuj</string>
+    <string name="ignore">Powtórz</string>
+    <string name="shorts">Spodenki</string>
+    <string name="blouse">Bluzy</string>
+    <string name="pants">Spodnie</string>
+    <string name="save">Zapisz</string>
+    <string name="cancel">Anuluj</string>
+    <string name="eon">Wprowadź nazwę outfitu.</string>
+    <string name="clothes">Ubrania:</string>
+    <string name="nooutfit">Nie znaleziono outfitów</string>
+    <string name="outfits">Outfity</string>
+    <string name="wardrobe">Garderoba</string>
+    <string name="info">Informacje</string>
+    <string name="description">
+    1. Wybierz Outfit \n
+    W tym module możesz stworzyć nowy outfit, nakładając ubrania na wirtualnego manekina.\n
+    \n
+    Kroki:\n
+    \n
+    - Na ekranie zobaczysz wirtualnego manekina. Po prawej stronie ekranu znajduje się panel z ubraniami, które możesz wybrać.\n
+    - Aby stworzyć outfit, wybierz przynajmniej dwie części garderoby (np. koszulę i spodnie) z panelu po prawej stronie.\n
+    - Gdy wybierzesz co najmniej dwa elementy garderoby, na ekranie pojawi się przycisk "Zapisz Outfit".\n
+    - Po kliknięciu przycisku "Zapisz Outfit", wyświetli się okienko, w którym musisz wpisać nazwę dla zapisanego outfitu.\n
+    - Wprowadź nazwę i kliknij "Zapisz". Outfit zostanie zapisany w Twojej kolekcji.\n
+    \n
+    \nWskazówki:
+    \n
+    \n- Aby stworzyć pełny outfit, wymagane jest nałożenie przynajmniej dwóch elementów garderoby.
+    \n- Możesz łączyć różne ubrania, aż stworzysz idealny zestaw.
+    \n
+    \n2. Outfity
+    \nW tym module możesz przeglądać i wyszukiwać swoje zapisane outfity.
+    \n
+    \nKroki:
+    \n
+    \n- Na ekranie pojawi się lista Twoich zapisanych outfitów, które stworzyłeś w poprzednim module.
+    \n- Możesz użyć opcji wyszukiwania, aby znaleźć konkretny outfit po nazwie, sezonie lub kategorii.
+    \n- Po kliknięciu na dowolny outfit, zobaczysz podgląd tego outfitu, z możliwością powiększenia widoku:
+      \n- Aby powiększyć zdjęcie manekina z outfitem, kliknij na jego zdjęcie. Zostanie ono wyświetlone w powiększeniu, dzięki czemu lepiej zobaczysz szczegóły stylizacji.
+    \n
+    \nWskazówki:
+
+    \n- Wykorzystaj opcję wyszukiwania, aby szybko znaleźć odpowiedni outfit do danej okazji.
+    \n- Regularnie przeglądaj zapisane outfity, aby łatwiej znaleźć idealną stylizację.
+    \n- Klikając na zdjęcie manekina, możesz powiększyć widok outfitu i dokładniej obejrzeć szczegóły.
+    \n
+    \n3. Dodaj Przedmiot
+    \nW tym module możesz dodać nowy element garderoby do swojej kolekcji.
+
+    \nKroki:
+
+    \n- Na ekranie pojawi się formularz, w którym należy uzupełnić:
+      \n- Nazwa – wpisz nazwę przedmiotu (np. "Czarna koszula").
+      \n- Kolor – wybierz kolor przedmiotu.
+      \n- Materiał – wybierz materiał, z którego wykonany jest element (np. "Bawełna").
+      \n- Kategoria – wybierz kategorię przedmiotu (np. "Koszule", "Spodnie").
+      \n- Sezon – wybierz sezon, w którym przedmiot najlepiej pasuje (np. "Lato", "Zima").
+    \n- Po uzupełnieniu formularza, przycisk "Zrób zdjęcie" stanie się aktywny.
+    \n- Kliknij przycisk "Zrób zdjęcie", aby otworzyć aparat i zrobić zdjęcie nowego przedmiotu.
+    \n- Upewnij się, że przedmiot jest dobrze widoczny na zdjęciu i uchwycony w całości.
+    \n- Po wykonaniu zdjęcia, kliknij "Zapisz", aby dodać przedmiot do swojej kolekcji.
+    \n
+    \nWskazówki:
+
+    \n- Upewnij się, że zdjęcie jest wyraźne i dobrze przedstawia przedmiot w całości.
+    \n- Pamiętaj, aby uzupełnić wszystkie wymagane pola formularza, aby przycisk "Zrób zdjęcie" stał się aktywny.
+
+    \n4. Garderoba
+    \nW tym module możesz wyszukiwać i przeglądać wszystkie dodane do aplikacji elementy garderoby, sortując je według różnych kryteriów.
+
+    \nKroki:
+
+    \n- Na ekranie zobaczysz wszystkie dodane do garderoby przedmioty.
+    \n- Możesz sortować przedmioty po nazwie, kolorze, materiale, kategorii oraz sezonie.
+    \n- Aby wyszukać konkretny przedmiot, użyj przycisku "Szukaj". Wpisz odpowiednie słowo kluczowe (np. nazwę, kolor, materiał) i aplikacja pokaże dopasowane elementy.
+    \n- Kliknij na wybrany przedmiot, aby zobaczyć jego szczegóły i zdjęcie.
+
+    \nWskazówki:
+
+    \n- Korzystaj z funkcji wyszukiwania, aby szybko znaleźć elementy garderoby według preferencji.
+    \n- Regularnie przeglądaj swoją garderobę, aby mieć pełny wgląd w swoje ubrania.
+</string>
+
+
+
+
 </resources>

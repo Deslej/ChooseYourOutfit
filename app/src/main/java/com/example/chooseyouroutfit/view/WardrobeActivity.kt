@@ -185,9 +185,8 @@ class WardrobeActivity : ComponentActivity() {
                         painter = rememberImagePainter(clothes.uri),
                         contentDescription = "Clothes Image",
                         modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                            .size(100.dp),
+                        contentScale = ContentScale.FillBounds
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {

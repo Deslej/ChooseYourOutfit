@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -42,9 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.chooseyouroutfit.R
 import com.example.chooseyouroutfit.data.entities.OutfitWithItems
@@ -174,11 +177,13 @@ class OutfitsActivity : ComponentActivity() {
                             bitmap = imageBitmap,
                             contentDescription = "manekin",
                             modifier = Modifier
-                                .size(80.dp)
+                                .size(100.dp)
                                 .padding(end = 16.dp)
-                                .clickable {
+                                .clickable
+                                {
                                     showDialog = true
-                                } // Kliknięcie na obrazek powoduje wyświetlenie powiększonego obrazu
+                                }, // Kliknięcie na obrazek powoduje wyświetlenie powiększonego obrazu
+                            contentScale = ContentScale.FillHeight
                         )
                     } else {
                         // Placeholder w przypadku braku obrazu
@@ -202,7 +207,7 @@ class OutfitsActivity : ComponentActivity() {
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = "${stringResource(R.string.name)} ${outfitWithItems.outfit.name}",
+                            text = "${stringResource(R.string.name)}: ${outfitWithItems.outfit.name}",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -266,8 +271,8 @@ class OutfitsActivity : ComponentActivity() {
                             contentDescription = "manekin",
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(300.dp) // Zwiększenie wysokości obrazu
-                                .clip(RoundedCornerShape(16.dp)) // Zaokrąglone rogi dla obrazu
+                                .height(420.dp),// Zwiększenie wysokości obrazu
+                            contentScale = ContentScale.FillHeight
                         )
 
                         Spacer(modifier = Modifier.height(16.dp)) // Odstęp między obrazem a tekstem
@@ -298,22 +303,23 @@ class OutfitsActivity : ComponentActivity() {
                                             .padding(8.dp)
                                     ) {
                                         Text(
-                                            text = "${stringResource(R.string.name)} ${clothes.name}",
+                                            text = "${stringResource(R.string.name)}: ${clothes.name}",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+
                                         )
                                         Text(
-                                            text = "${stringResource(R.string.season)} ${clothes.season}",
+                                            text = "${stringResource(R.string.season)}: ${clothes.season}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "${stringResource(R.string.material)} ${clothes.material}",
+                                            text = "${stringResource(R.string.material)}: ${clothes.material}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "${stringResource(R.string.color)} ${clothes.color}",
+                                            text = "${stringResource(R.string.color)}: ${clothes.color}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )

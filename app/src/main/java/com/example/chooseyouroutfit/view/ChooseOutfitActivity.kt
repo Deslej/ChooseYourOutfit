@@ -218,7 +218,7 @@ class ChooseOutfitActivity : ComponentActivity() {
                         Image(
                             painter = rememberAsyncImagePainter(uri),
                             contentDescription = null,
-                            contentScale = ContentScale.Crop,
+                            contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .then(
@@ -350,9 +350,9 @@ class ChooseOutfitActivity : ComponentActivity() {
         } else if ((uri == currentImageBottom.value) and (index == 3)) {
             mannequinPoints = floatArrayOf(
                 leftkneex + 10, leftkneey + 190,
-                rightkneex, rightkneey + 160,
+                rightkneex+6, rightkneey + 160,
                 leftHipx - 20, leftHipy,
-                rightHipx + 20, rightHipy
+                rightHipx + 28, rightHipy
             )
         }
 
@@ -401,7 +401,7 @@ class ChooseOutfitActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SaveOutfitButton(modifier: Modifier = Modifier) {
+    fun SaveOutfitButton() {
         var showDialog by remember { mutableStateOf(false) }
         var outfitName by remember { mutableStateOf("") }
 
@@ -434,22 +434,19 @@ class ChooseOutfitActivity : ComponentActivity() {
                 }
             )
         }
-
-        if (currentImageTop.value != null && currentImageBottom.value != null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = 10.dp, start = 70.dp)
+                    .padding(bottom = 10.dp, start = 85.dp)
             ) {
                 Button(
                     onClick = { showDialog = true },
-                    modifier = Modifier.align(Alignment.BottomStart)
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    enabled = currentImageTop.value != null && currentImageBottom.value != null
                 ) {
                     Text(stringResource(R.string.save))
                 }
             }
-
-        }
     }
 
     private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {

@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "ChooseYourOutfit"
 include(":app")
-include(":opencv")

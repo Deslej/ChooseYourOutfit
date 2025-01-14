@@ -26,7 +26,7 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="eon">Enter outfit name</string>
-    <string name="clothes">Clothes</string>
+    <string name="clothes">Clothes:</string>
     <string name="nooutfit">No outfit found.</string>
     <string name="outfits">Outfits</string>
     <string name="wardrobe">Wardrobe</string>

@@ -173,7 +173,7 @@ class CameraActivity : ComponentActivity() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 isProcessing = true
-                runModel(context, uri, "last_float32.tflite", "model", "cut_clothe_from_image")
+                runModel(context, uri, "Model.tflite", "model", "cut_clothe_from_image")
                 isProcessing = false
             }
         }
